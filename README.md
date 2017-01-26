@@ -6,4 +6,4 @@ TBA
 Licensed under the Apache License.
 
 ## Description
-Something stupid
+Something awesome
