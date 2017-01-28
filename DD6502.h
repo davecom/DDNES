@@ -11,17 +11,30 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef uint8_t byte;
 typedef uint16_t word;
 
-uint64_t cpu_cycles = 0;
-#define CPU_CYCLE(x) (cpu_cycles += x)
+typedef enum {
+    IMMEDIATE,
+    ZERO_PAGE,
+    ZERO_PAGE_X,
+    ABSOLUTE,
+    ABSOLUTE_X,
+    ASBOLUTE_Y,
+    INDIRECT_X,
+    INDIRECT_Y
+} mem_mode;
 
-
-
+/**
+ Reset all registers, flags, and memory to defaults
+ */
 void cpu_reset();
-byte read_memory(word address, );
-void write_memory(word address, memory);
+
+void cpu_cycle();
+
+byte read_memory(word address, mem_mode mode);
+void write_memory(word address, mem_mode mode, byte value);
 
 #endif /* DD6502_h */
