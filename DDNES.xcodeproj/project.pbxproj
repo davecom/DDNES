@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		558AC0811E3AC50D00B786DE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0801E3AC50D00B786DE /* main.c */; };
+		558AC0841E3B078800B786DE /* DD6502.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0821E3B078800B786DE /* DD6502.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		558AC0741E3AC42200B786DE /* DDNES */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DDNES; sourceTree = BUILT_PRODUCTS_DIR; };
 		558AC0801E3AC50D00B786DE /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = Sources/main.c; sourceTree = "<group>"; };
+		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DD6502.c; sourceTree = "<group>"; };
+		558AC0831E3B078800B786DE /* DD6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DD6502.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +45,8 @@
 			isa = PBXGroup;
 			children = (
 				558AC0801E3AC50D00B786DE /* main.c */,
+				558AC0821E3B078800B786DE /* DD6502.c */,
+				558AC0831E3B078800B786DE /* DD6502.h */,
 				558AC0751E3AC42200B786DE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +117,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				558AC0841E3B078800B786DE /* DD6502.c in Sources */,
 				558AC0811E3AC50D00B786DE /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
