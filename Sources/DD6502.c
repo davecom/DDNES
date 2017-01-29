@@ -122,7 +122,7 @@ typedef struct {
 
 // the following giant table has been machine generated (see python script) from tables
 // included in the NES emulator "nes" by Michael Fogleman (https://github.com/fogleman/nes)
-
+// the instructions table is indexed by the instruction itself
 instruction_info instructions[256] = {
     {BRK, "BRK", IMPLIED, 1, 7, 0}, 			// 00
     {ORA, "ORA", INDEXED_INDIRECT, 2, 6, 0}, 	// 01
