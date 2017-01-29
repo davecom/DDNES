@@ -17,14 +17,20 @@ typedef uint8_t byte;
 typedef uint16_t word;
 
 typedef enum {
-    IMMEDIATE,
-    ZERO_PAGE,
-    ZERO_PAGE_X,
+    DUMMY,
     ABSOLUTE,
     ABSOLUTE_X,
     ASBOLUTE_Y,
-    INDIRECT_X,
-    INDIRECT_Y
+    ACCUMULATOR,
+    IMMEDIATE,
+    IMPLIED,
+    INDEXED_INDIRECT,
+    INDIRECT,
+    INDIRECT_INDEXED,
+    RELATIVE,
+    ZEROPAGE,
+    ZEROPAGE_X,
+    ZEROPAGE_Y
 } mem_mode;
 
 /**
