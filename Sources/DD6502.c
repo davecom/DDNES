@@ -13,7 +13,7 @@
 // http://www.thealmightyguru.com/Games/Hacking/Wiki/index.php/6502_Opcodes
 // http://nesdev.com/6502.txt
 // http://www.6502.org/tutorials/6502opcodes.html#STACK
-// 
+// https://github.com/fogleman/nes/blob/master/nes/cpu.go
 
 struct {
     byte a; // accumulator
@@ -393,12 +393,14 @@ uint64_t cpu_ticks = 0;
 
 
 // functions
+
+// for info on this, see https://wiki.nesdev.com/w/index.php/CPU_power_up_state
 void cpu_reset() {
     // reset registers
     registers.a = 0;
     registers.x = 0;
     registers.y = 0;
-    registers.sp = 0;
+    registers.sp = 0xfd;
     registers.pc = 0x100;
     // reset flags
     flags.c = false;
@@ -428,6 +430,54 @@ void cpu_cycle() {
             // more to do
             break;
         }
+        case CLC:  // clear carry
+            flags.c = false;
+            break;
+        case CLD: // clear decimal
+            flags.d = false;
+            break;
+        case CLI: // clear interrupt
+            flags.i = false;
+            break;
+        case CLV: // clear overflow
+            flags.o = false;
+            break;
+        case DEX: // decrement X
+            registers.x--;
+            break;
+        case DEY: // decrement Y
+            registers.y--;
+            break;
+        case INX: // increment x
+            registers.x++;
+            break;
+        case INY: // increment y
+            registers.y++;
+            break;
+        case NOP: // no op
+            break;
+        case SEC: // set carry
+            flags.c = true;
+            break;
+        case SED: // set decimal
+            flags.d = true;
+            break;
+        case SEI: // set interrupt
+            flags.i = true;
+            break;
+        case TAX: // transfer a to x
+            registers.x = registers.a;
+            break;
+        case TAY: // transfer a to y
+            registers.y = registers.a;
+            break;
+        case TXA: // transfer x to a
+            registers.a = registers.x;
+            break;
+        case TYA: // transfer y to a
+            registers.a = registers.y;
+            break;
+        
         default:
             break;
     }
