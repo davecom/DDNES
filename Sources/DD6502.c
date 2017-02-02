@@ -400,7 +400,7 @@ void cpu_reset() {
     registers.a = 0;
     registers.x = 0;
     registers.y = 0;
-    registers.sp = 0xfd;
+    registers.sp = 0xff;
     registers.pc = 0x100;
     // reset flags
     flags.c = false;
@@ -471,13 +471,18 @@ void cpu_cycle() {
         case TAY: // transfer a to y
             registers.y = registers.a;
             break;
+        case TSX: // transfer stack pointer to x
+            registers.x = registers.sp;
+            break;
+        case TXS: // transfer x to stack pointer
+            registers.sp = registers.x;
+            break;
         case TXA: // transfer x to a
             registers.a = registers.x;
             break;
         case TYA: // transfer y to a
             registers.a = registers.y;
             break;
-        
         default:
             break;
     }
