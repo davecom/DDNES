@@ -23,15 +23,34 @@ struct {
     word pc; // program counter
 } registers;
 
+#define A registers.a
+#define X registers.x
+#define Y registers.y
+#define SP registers.sp
+#define PC registers.pc
+
+
 struct {
     bool c; // carry
     bool z; // zero
     bool i; // interrupt disable
     bool d; // decimal mode
     bool b; // break command
-    bool o; // overflow
+    bool v; // oVerflow
     bool n; // negative
 } flags;
+
+#define C flags.c
+#define Z flags.z
+#define I flags.i
+#define D flags.d
+#define B flags.b
+#define V flags.v
+#define N flags.n
+
+// status regiser is a combo of flags
+// the 5th one is a dummy 1
+#define S (C | Z << 1 | I << 2 | D << 3 | B << 4 | 1 << 5 | V << 6 | N << 7)
 
 typedef enum {
     ADC,
@@ -405,10 +424,10 @@ void cpu_reset() {
     // reset flags
     flags.c = false;
     flags.z = false;
-    flags.i = false;
+    flags.i = true;
     flags.d = false;
     flags.b = false;
-    flags.o = false;
+    flags.v = false;
     flags.n = false;
     // clear memory
     memset(&ram, MEM_SIZE, 0);
@@ -431,57 +450,82 @@ void cpu_cycle() {
             break;
         }
         case CLC:  // clear carry
-            flags.c = false;
+            C = false;
             break;
         case CLD: // clear decimal
-            flags.d = false;
+            D = false;
             break;
         case CLI: // clear interrupt
-            flags.i = false;
+            I = false;
             break;
         case CLV: // clear overflow
-            flags.o = false;
+            V = false;
             break;
         case DEX: // decrement X
-            registers.x--;
+            X--;
             break;
         case DEY: // decrement Y
-            registers.y--;
+            Y--;
             break;
         case INX: // increment x
-            registers.x++;
+            X++;
             break;
         case INY: // increment y
-            registers.y++;
+            Y++;
             break;
         case NOP: // no op
             break;
+        case PHA: // push accumulator
+            ram[(0x0100 & SP)] = A;
+            SP--;
+            break;
+        case PHP: // push status
+            ram[(0x0100 & SP)] = S;
+            SP--;
+            break;
+        case PLA: // pull accumulator
+            SP++;
+            A = ram[(0x0100 & SP)];
+            break;
+        case PLP: // pull status
+        {
+            SP++;
+            byte temp = ram[(0x0100 & SP)];
+            C = temp & 0b00000001;
+            Z = temp & 0b00000010;
+            I = temp & 0b00000100;
+            D = temp & 0b00001000;
+            B = temp & 0b00010000;
+            V = temp & 0b01000000;
+            N = temp & 0b10000000;
+            break;
+        }
         case SEC: // set carry
-            flags.c = true;
+            C = true;
             break;
         case SED: // set decimal
-            flags.d = true;
+            D = true;
             break;
         case SEI: // set interrupt
-            flags.i = true;
+            I = true;
             break;
         case TAX: // transfer a to x
-            registers.x = registers.a;
+            X = A;
             break;
         case TAY: // transfer a to y
-            registers.y = registers.a;
+            Y = A;
             break;
         case TSX: // transfer stack pointer to x
-            registers.x = registers.sp;
+            X = SP;
             break;
         case TXS: // transfer x to stack pointer
-            registers.sp = registers.x;
+            SP = X;
             break;
         case TXA: // transfer x to a
-            registers.a = registers.x;
+            A = X;
             break;
         case TYA: // transfer y to a
-            registers.a = registers.y;
+            A = Y;
             break;
         default:
             break;
