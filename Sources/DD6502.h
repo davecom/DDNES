@@ -20,7 +20,7 @@ typedef enum {
     DUMMY,
     ABSOLUTE,
     ABSOLUTE_X,
-    ASBOLUTE_Y,
+    ABSOLUTE_Y,
     ACCUMULATOR,
     IMMEDIATE,
     IMPLIED,
@@ -40,7 +40,9 @@ void cpu_reset();
 
 void cpu_cycle();
 
-byte read_memory(word address, mem_mode mode);
-void write_memory(word address, mem_mode mode, byte value);
+static inline byte read_memory(word data, mem_mode mode);
+static inline void write_memory(word data, mem_mode mode, byte value);
+static inline word address_for_mode(word data, mem_mode mode);
+static inline void setZN(byte value);
 
 #endif /* DD6502_h */

@@ -36,7 +36,7 @@ struct {
     bool i; // interrupt disable
     bool d; // decimal mode
     bool b; // break command
-    bool v; // oVerflow
+    bool v; // oVerflow http://www.6502.org/tutorials/vflag.html
     bool n; // negative
 } flags;
 
@@ -51,6 +51,8 @@ struct {
 // status regiser is a combo of flags
 // the 5th one is a dummy 1
 #define S (C | Z << 1 | I << 2 | D << 3 | B << 4 | 1 << 5 | V << 6 | N << 7)
+
+#define DIFFERENT_PAGES(a1, a2) ((a1 & 0xFF00) != (a2 & 0xFF00))
 
 typedef enum {
     ADC,
@@ -168,9 +170,9 @@ instruction_info instructions[256] = {
     {ASL, "ASL", ZEROPAGE_X, 2, 6, 0}, 			// 16
     {SLO, "SLO", ZEROPAGE_X, 0, 6, 0}, 			// 17
     {CLC, "CLC", IMPLIED, 1, 2, 0}, 			// 18
-    {ORA, "ORA", ASBOLUTE_Y, 3, 4, 1}, 			// 19
+    {ORA, "ORA", ABSOLUTE_Y, 3, 4, 1}, 			// 19
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 1a
-    {SLO, "SLO", ASBOLUTE_Y, 0, 7, 0}, 			// 1b
+    {SLO, "SLO", ABSOLUTE_Y, 0, 7, 0}, 			// 1b
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 1c
     {ORA, "ORA", ABSOLUTE_X, 3, 4, 1}, 			// 1d
     {ASL, "ASL", ABSOLUTE_X, 3, 7, 0}, 			// 1e
@@ -200,9 +202,9 @@ instruction_info instructions[256] = {
     {ROL, "ROL", ZEROPAGE_X, 2, 6, 0}, 			// 36
     {RLA, "RLA", ZEROPAGE_X, 0, 6, 0}, 			// 37
     {SEC, "SEC", IMPLIED, 1, 2, 0}, 			// 38
-    {AND, "AND", ASBOLUTE_Y, 3, 4, 1}, 			// 39
+    {AND, "AND", ABSOLUTE_Y, 3, 4, 1}, 			// 39
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 3a
-    {RLA, "RLA", ASBOLUTE_Y, 0, 7, 0}, 			// 3b
+    {RLA, "RLA", ABSOLUTE_Y, 0, 7, 0}, 			// 3b
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 3c
     {AND, "AND", ABSOLUTE_X, 3, 4, 1}, 			// 3d
     {ROL, "ROL", ABSOLUTE_X, 3, 7, 0}, 			// 3e
@@ -232,9 +234,9 @@ instruction_info instructions[256] = {
     {LSR, "LSR", ZEROPAGE_X, 2, 6, 0}, 			// 56
     {SRE, "SRE", ZEROPAGE_X, 0, 6, 0}, 			// 57
     {CLI, "CLI", IMPLIED, 1, 2, 0}, 			// 58
-    {EOR, "EOR", ASBOLUTE_Y, 3, 4, 1}, 			// 59
+    {EOR, "EOR", ABSOLUTE_Y, 3, 4, 1}, 			// 59
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 5a
-    {SRE, "SRE", ASBOLUTE_Y, 0, 7, 0}, 			// 5b
+    {SRE, "SRE", ABSOLUTE_Y, 0, 7, 0}, 			// 5b
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 5c
     {EOR, "EOR", ABSOLUTE_X, 3, 4, 1}, 			// 5d
     {LSR, "LSR", ABSOLUTE_X, 3, 7, 0}, 			// 5e
@@ -264,9 +266,9 @@ instruction_info instructions[256] = {
     {ROR, "ROR", ZEROPAGE_X, 2, 6, 0}, 			// 76
     {RRA, "RRA", ZEROPAGE_X, 0, 6, 0}, 			// 77
     {SEI, "SEI", IMPLIED, 1, 2, 0}, 			// 78
-    {ADC, "ADC", ASBOLUTE_Y, 3, 4, 1}, 			// 79
+    {ADC, "ADC", ABSOLUTE_Y, 3, 4, 1}, 			// 79
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 7a
-    {RRA, "RRA", ASBOLUTE_Y, 0, 7, 0}, 			// 7b
+    {RRA, "RRA", ABSOLUTE_Y, 0, 7, 0}, 			// 7b
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 7c
     {ADC, "ADC", ABSOLUTE_X, 3, 4, 1}, 			// 7d
     {ROR, "ROR", ABSOLUTE_X, 3, 7, 0}, 			// 7e
@@ -296,13 +298,13 @@ instruction_info instructions[256] = {
     {STX, "STX", ZEROPAGE_Y, 2, 4, 0}, 			// 96
     {SAX, "SAX", ZEROPAGE_Y, 0, 4, 0}, 			// 97
     {TYA, "TYA", IMPLIED, 1, 2, 0}, 			// 98
-    {STA, "STA", ASBOLUTE_Y, 3, 5, 0}, 			// 99
+    {STA, "STA", ABSOLUTE_Y, 3, 5, 0}, 			// 99
     {TXS, "TXS", IMPLIED, 1, 2, 0}, 			// 9a
-    {TAS, "TAS", ASBOLUTE_Y, 0, 5, 0}, 			// 9b
+    {TAS, "TAS", ABSOLUTE_Y, 0, 5, 0}, 			// 9b
     {SHY, "SHY", ABSOLUTE_X, 0, 5, 0}, 			// 9c
     {STA, "STA", ABSOLUTE_X, 3, 5, 0}, 			// 9d
-    {SHX, "SHX", ASBOLUTE_Y, 0, 5, 0}, 			// 9e
-    {AHX, "AHX", ASBOLUTE_Y, 0, 5, 0}, 			// 9f
+    {SHX, "SHX", ABSOLUTE_Y, 0, 5, 0}, 			// 9e
+    {AHX, "AHX", ABSOLUTE_Y, 0, 5, 0}, 			// 9f
     {LDY, "LDY", IMMEDIATE, 2, 2, 0}, 			// a0
     {LDA, "LDA", INDEXED_INDIRECT, 2, 6, 0}, 	// a1
     {LDX, "LDX", IMMEDIATE, 2, 2, 0}, 			// a2
@@ -328,13 +330,13 @@ instruction_info instructions[256] = {
     {LDX, "LDX", ZEROPAGE_Y, 2, 4, 0}, 			// b6
     {LAX, "LAX", ZEROPAGE_Y, 0, 4, 0}, 			// b7
     {CLV, "CLV", IMPLIED, 1, 2, 0}, 			// b8
-    {LDA, "LDA", ASBOLUTE_Y, 3, 4, 1}, 			// b9
+    {LDA, "LDA", ABSOLUTE_Y, 3, 4, 1}, 			// b9
     {TSX, "TSX", IMPLIED, 1, 2, 0}, 			// ba
-    {LAS, "LAS", ASBOLUTE_Y, 0, 4, 1}, 			// bb
+    {LAS, "LAS", ABSOLUTE_Y, 0, 4, 1}, 			// bb
     {LDY, "LDY", ABSOLUTE_X, 3, 4, 1}, 			// bc
     {LDA, "LDA", ABSOLUTE_X, 3, 4, 1}, 			// bd
-    {LDX, "LDX", ASBOLUTE_Y, 3, 4, 1}, 			// be
-    {LAX, "LAX", ASBOLUTE_Y, 0, 4, 1}, 			// bf
+    {LDX, "LDX", ABSOLUTE_Y, 3, 4, 1}, 			// be
+    {LAX, "LAX", ABSOLUTE_Y, 0, 4, 1}, 			// bf
     {CPY, "CPY", IMMEDIATE, 2, 2, 0}, 			// c0
     {CMP, "CMP", INDEXED_INDIRECT, 2, 6, 0}, 	// c1
     {NOP, "NOP", IMMEDIATE, 0, 2, 0}, 			// c2
@@ -360,9 +362,9 @@ instruction_info instructions[256] = {
     {DEC, "DEC", ZEROPAGE_X, 2, 6, 0}, 			// d6
     {DCP, "DCP", ZEROPAGE_X, 0, 6, 0}, 			// d7
     {CLD, "CLD", IMPLIED, 1, 2, 0}, 			// d8
-    {CMP, "CMP", ASBOLUTE_Y, 3, 4, 1}, 			// d9
+    {CMP, "CMP", ABSOLUTE_Y, 3, 4, 1}, 			// d9
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// da
-    {DCP, "DCP", ASBOLUTE_Y, 0, 7, 0}, 			// db
+    {DCP, "DCP", ABSOLUTE_Y, 0, 7, 0}, 			// db
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// dc
     {CMP, "CMP", ABSOLUTE_X, 3, 4, 1}, 			// dd
     {DEC, "DEC", ABSOLUTE_X, 3, 7, 0}, 			// de
@@ -392,9 +394,9 @@ instruction_info instructions[256] = {
     {INC, "INC", ZEROPAGE_X, 2, 6, 0}, 			// f6
     {ISC, "ISC", ZEROPAGE_X, 0, 6, 0}, 			// f7
     {SED, "SED", IMPLIED, 1, 2, 0}, 			// f8
-    {SBC, "SBC", ASBOLUTE_Y, 3, 4, 1}, 			// f9
+    {SBC, "SBC", ABSOLUTE_Y, 3, 4, 1}, 			// f9
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// fa
-    {ISC, "ISC", ASBOLUTE_Y, 0, 7, 0}, 			// fb
+    {ISC, "ISC", ABSOLUTE_Y, 0, 7, 0}, 			// fb
     {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// fc
     {SBC, "SBC", ABSOLUTE_X, 3, 4, 1}, 			// fd
     {INC, "INC", ABSOLUTE_X, 3, 7, 0}, 			// fe
@@ -403,6 +405,8 @@ instruction_info instructions[256] = {
 
 const int MEM_SIZE = 65536;
 byte ram[MEM_SIZE]; // memory - 64k available to 6502, only 2k actually in NES
+
+bool page_crossed = false;
 
 // keep track of clock cycles
 uint64_t cpu_ticks = 0;
@@ -435,6 +439,7 @@ void cpu_reset() {
 
 void cpu_cycle() {
     byte opcode = ram[registers.pc];
+    page_crossed = false;
     instruction_info info = instructions[opcode];
     word data = 0;  // could be 8 bit or 16 bit, if 16 high byte is just 0
     for (int i = 1; i < info.length; i++) {
@@ -445,7 +450,11 @@ void cpu_cycle() {
         case ADC: // add memory to accumulator with carry
         {
             byte src = read_memory(data, info.mode);
-            registers.a += src + flags.c;
+            A += (src + C);
+            int iresult = (int)((int)src + (int)A + (int)C);
+            C = (iresult > 0xFF); // set carry
+            V = (iresult > 127 || iresult < -128);
+            setZN(A);
             // more to do
             break;
         }
@@ -532,16 +541,84 @@ void cpu_cycle() {
     }
     
     CPU_TICK(info.ticks);
+    if (page_crossed) {
+        CPU_TICK(info.pageTicks);
+    }
 }
 
-byte read_memory(word address, mem_mode mode) {
-    return 0; // temporary
+static inline byte read_memory(word data, mem_mode mode) {
+    if (mode == IMMEDIATE) {
+        return (byte)data;
+    }
+    word address = address_for_mode(data, mode);
+    return ram[address];
 }
 
-void write_memory(word address, mem_mode mode, byte value) {
-    
+static inline void write_memory(word data, mem_mode mode, byte value) {
+    if (mode == IMMEDIATE) {
+        ram[data] = value;
+        return;
+    }
+    word address = address_for_mode(data, mode);
+    ram[address] = value;
 }
 
-word address_for_mode(word address, mem_mode mode) {
-    return 0; //temporary
+static inline word address_for_mode(word data, mem_mode mode) {
+    word address = 0;
+    switch (mode) {
+        case ABSOLUTE:
+            address = data;
+            break;
+        case ABSOLUTE_X:
+            address = data + X;
+            page_crossed = DIFFERENT_PAGES(address, (address - X));
+            break;
+        case ABSOLUTE_Y:
+            address = data + Y;
+            page_crossed = DIFFERENT_PAGES(address, (address - Y));
+            break;
+        case INDEXED_INDIRECT:
+        {
+            word ls = (word) ram[(data + X)];
+            word ms = (word) ram[(data + X) + 1];
+            address = (ms << 8) & ls;
+            break;
+        }
+        case INDIRECT:
+        {
+            word ls = (word) ram[data];
+            word ms = (word) ram[data + 1];
+            address = (ms << 8) & ls;
+            break;
+        }
+        case INDIRECT_INDEXED:
+        {
+            word ls = (word) ram[data];
+            word ms = (word) ram[data + 1];
+            address = (ms << 8) & ls;
+            address += Y;
+            page_crossed = DIFFERENT_PAGES(address, (address - Y));
+            break;
+        }
+        case RELATIVE:
+            address = (data < 0x80) ? (PC + 2 + data) : (PC + 2 - (data ^ 0x80)); // signed
+            break;
+        case ZEROPAGE:
+            address = data;
+            break;
+        case ZEROPAGE_X:
+            address = (byte) (((byte) data) + X);
+            break;
+        case ZEROPAGE_Y:
+            address = (byte) (((byte) data) + Y);
+            break;
+        default:
+            return address;
+    }
+    return address;
+}
+
+static inline void setZN(byte value) {
+    Z = (value == 0);
+    N = (((char)value) < 0);
 }
