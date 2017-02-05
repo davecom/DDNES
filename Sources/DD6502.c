@@ -440,6 +440,7 @@ void cpu_reset() {
 void cpu_cycle() {
     byte opcode = ram[registers.pc];
     page_crossed = false;
+    bool jumped = false;
     instruction_info info = instructions[opcode];
     word data = 0;  // could be 8 bit or 16 bit, if 16 high byte is just 0
     for (int i = 1; i < info.length; i++) {
@@ -451,13 +452,38 @@ void cpu_cycle() {
         {
             byte src = read_memory(data, info.mode);
             A += (src + C);
-            int iresult = (int)((int)src + (int)A + (int)C);
-            C = (iresult > 0xFF); // set carry
-            V = (iresult > 127 || iresult < -128);
+            unsigned int uiresult = (unsigned int)(src + A + C);
+            C = (uiresult > 0xFF); // set carry
+            int siresult = (int)((char)src + (char)A + (char)C);
+            V = (siresult > 127 || siresult < -128);
             setZN(A);
             // more to do
             break;
         }
+        case AND: // bitwise AND with accumulator
+        {
+            byte src = read_memory(data, info.mode);
+            A &= src;
+            setZN(A);
+            break;
+        }
+        case ASL: // arithmetic shift left
+        {
+            byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            C = src >> 7; // carry is set to 7th bit
+            src <<= 1;
+            setZN(src);
+            if (info.mode == ACCUMULATOR) {
+                A = src;
+            } else {
+                write_memory(data, info.mode, src);
+            }
+            break;
+        }
+        case BCC: // branch if carry clear
+            if (!C) {
+                PC = address_for_mode(data, info.mode);
+            }
         case CLC:  // clear carry
             C = false;
             break;
@@ -538,6 +564,10 @@ void cpu_cycle() {
             break;
         default:
             break;
+    }
+    
+    if (!jumped) {
+        PC += info.length;
     }
     
     CPU_TICK(info.ticks);
