@@ -483,7 +483,15 @@ void cpu_cycle() {
         case BCC: // branch if carry clear
             if (!C) {
                 PC = address_for_mode(data, info.mode);
+                jumped = true;
             }
+            break;
+        case BCS: // branch if carry set
+            if (C) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
         case CLC:  // clear carry
             C = false;
             break;
@@ -631,7 +639,7 @@ static inline word address_for_mode(word data, mem_mode mode) {
             break;
         }
         case RELATIVE:
-            address = (data < 0x80) ? (PC + 2 + data) : (PC + 2 - (data ^ 0x80)); // signed
+            address = (data < 0x80) ? (PC + 2 + data) : (PC + 2 + (data - 256)); // signed
             break;
         case ZEROPAGE:
             address = data;
