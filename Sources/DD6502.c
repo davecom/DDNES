@@ -492,6 +492,65 @@ void cpu_cycle() {
                 jumped = true;
             }
             break;
+        case BEQ: // branch on result zero
+            if (Z) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
+        case BIT: // bit test bits in memory with accumulator
+        {
+            byte src = read_memory(data, info.mode);
+            V = (src >> 6) & 1;
+            Z = ((src & A) == 0);
+            N = ((src >> 7) == 1);
+            break;
+        }
+        case BMI: // branch on result minus
+            if (N) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
+        case BNE: // branch on result not zero
+            if (!Z) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
+        case BPL: // branch on result plus
+            if (!N) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
+        case BRK: // force break
+            PC += 2;
+            // push pc to stack
+            ram[(0x0100 & SP)] = (byte)(PC >> 8);
+            SP--;
+            ram[(0x0100 & SP)] = (byte)(PC & 0xFF);
+            SP--;
+            // push S to stack
+            ram[(0x0100 & SP)] = S;
+            SP--;
+            // set PC to reset vector
+            PC = ((word)ram[0xFFFE]) | (((word)ram[0xFFFF]) << 8);
+            B = true;
+            jumped = true;
+            break;
+        case BVC: // branch on overflow clear
+            if (!V) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
+        case BVS: // branch on overflow set
+            if (V) {
+                PC = address_for_mode(data, info.mode);
+                jumped = true;
+            }
+            break;
         case CLC:  // clear carry
             C = false;
             break;
@@ -504,19 +563,109 @@ void cpu_cycle() {
         case CLV: // clear overflow
             V = false;
             break;
+        case CMP: // compare accumulator
+        {
+            byte src = read_memory(data, info.mode);
+            C = (A >= src);
+            setZN(A - src);
+            break;
+        }
+        case CPX: // compare X register
+        {
+            byte src = read_memory(data, info.mode);
+            C = (X >= src);
+            setZN(X - src);
+            break;
+        }
+        case CPY: // compare Y register
+        {
+            byte src = read_memory(data, info.mode);
+            C = (Y >= src);
+            setZN(Y - src);
+            break;
+        }
+        case DEC: // decrement memory
+        {
+            word address = address_for_mode(data, info.mode);
+            ram[address]--;
+            setZN(ram[address]);
+            break;
+        }
         case DEX: // decrement X
             X--;
+            setZN(X);
             break;
         case DEY: // decrement Y
             Y--;
+            setZN(Y);
             break;
+        case EOR: // exclusive or memory with accumulator
+            A ^= read_memory(data, info.mode);
+            setZN(A);
+            break;
+        case INC: // increment memory
+        {
+            word address = address_for_mode(data, info.mode);
+            ram[address]++;
+            setZN(ram[address]);
+            break;
+        }
         case INX: // increment x
             X++;
+            setZN(X);
             break;
         case INY: // increment y
             Y++;
+            setZN(Y);
             break;
+        case JMP: // jump to new location
+            PC = address_for_mode(data, info.mode);
+            jumped = true;
+            break;
+        case JSR: // jump to subroutine
+        {
+            // push next instruction address onto stack
+            PC += 3;
+            // push next instruction to stack
+            ram[(0x0100 & SP)] = (byte)(PC >> 8);
+            SP--;
+            ram[(0x0100 & SP)] = (byte)(PC & 0xFF);
+            SP--;
+            // jump to subroutine
+            PC = address_for_mode(data, info.mode);
+            jumped = true;
+            break;
+        }
+        case LDA: // load accumulator with memory
+            A = read_memory(data, info.mode);
+            setZN(A);
+            break;
+        case LDX: // load X with memory
+            X = read_memory(data, info.mode);
+            setZN(X);
+            break;
+        case LDY: // load Y with memory
+            Y = read_memory(data, info.mode);
+            setZN(Y);
+            break;
+        case LSR: // logical shift right
+        {
+            byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            C = src & 1; // carry is set to 0th bit
+            src >>= 1;
+            setZN(src);
+            if (info.mode == ACCUMULATOR) {
+                A = src;
+            } else {
+                write_memory(data, info.mode, src);
+            }
+            break;
+        }
         case NOP: // no op
+            break;
+        case ORA: // or memory with accumulator
+            A |= read_memory(data, info.mode);
+            setZN(A);
             break;
         case PHA: // push accumulator
             ram[(0x0100 & SP)] = A;
@@ -541,6 +690,32 @@ void cpu_cycle() {
             B = temp & 0b00010000;
             V = temp & 0b01000000;
             N = temp & 0b10000000;
+            break;
+        }
+        case ROL: // rotate one bit left
+        {
+            byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            C = (src >> 7) & 1; // carry is set to 7th bit
+            src = ((src << 1) | C);
+            setZN(src);
+            if (info.mode == ACCUMULATOR) {
+                A = src;
+            } else {
+                write_memory(data, info.mode, src);
+            }
+            break;
+        }
+        case ROR: // rotate one bit right
+        {
+            byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            C = (src & 1); // carry is set to 0th bit
+            src = ((src >> 1) | (C << 7));
+            setZN(src);
+            if (info.mode == ACCUMULATOR) {
+                A = src;
+            } else {
+                write_memory(data, info.mode, src);
+            }
             break;
         }
         case SEC: // set carry
@@ -651,7 +826,7 @@ static inline word address_for_mode(word data, mem_mode mode) {
             address = (byte) (((byte) data) + Y);
             break;
         default:
-            return address;
+            break;
     }
     return address;
 }
