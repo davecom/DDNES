@@ -455,9 +455,8 @@ void cpu_cycle() {
             unsigned int uiresult = (unsigned int)(src + A + C);
             C = (uiresult > 0xFF); // set carry
             int siresult = (int)((char)src + (char)A + (char)C);
-            V = (siresult > 127 || siresult < -128);
+            V = (siresult > 127 || siresult < -128);  // set overflow
             setZN(A);
-            // more to do
             break;
         }
         case AND: // bitwise AND with accumulator
@@ -625,7 +624,7 @@ void cpu_cycle() {
         case JSR: // jump to subroutine
         {
             // push next instruction address onto stack
-            PC += 3;
+            PC += 2;
             // push next instruction to stack
             ram[(0x0100 & SP)] = (byte)(PC >> 8);
             SP--;
@@ -718,6 +717,49 @@ void cpu_cycle() {
             }
             break;
         }
+        case RTI: // return from interrupt
+        {
+            // pull Status out
+            SP++;
+            byte temp = ram[(0x0100 & SP)];
+            C = temp & 0b00000001;
+            Z = temp & 0b00000010;
+            I = temp & 0b00000100;
+            D = temp & 0b00001000;
+            B = temp & 0b00010000;
+            V = temp & 0b01000000;
+            N = temp & 0b10000000;
+            // pull PC out
+            SP++;
+            byte hb = ram[(0x0100 & SP)];
+            SP++;
+            byte lb = ram[(0x0100 & SP)];
+            PC = (((word)hb) << 8) |  lb;
+            jumped = true;
+            break;
+        }
+        case RTS: // return from subroutine
+        {
+            // pull PC out
+            SP++;
+            byte hb = ram[(0x0100 & SP)];
+            SP++;
+            byte lb = ram[(0x0100 & SP)];
+            PC = ((((word)hb) << 8) |  lb) + 1; // it was -1 on the other side
+            jumped = true;
+            break;
+        }
+        case SBC: // subtract with carry
+        {
+            byte src = read_memory(data, info.mode);
+            A -= (src - C);
+            unsigned int uiresult = (unsigned int)(src - A - C);
+            C = (uiresult > 0xFF); // set carry
+            int siresult = (int)((char)src - (char)A - (char)C);
+            V = (siresult > 127 || siresult < -128);  // set overflow
+            setZN(A);
+            break;
+        }
         case SEC: // set carry
             C = true;
             break;
@@ -726,6 +768,15 @@ void cpu_cycle() {
             break;
         case SEI: // set interrupt
             I = true;
+            break;
+        case STA: // store accumulator
+            write_memory(data, info.mode, A);
+            break;
+        case STX: // store X register
+            write_memory(data, info.mode, X);
+            break;
+        case STY: // store Y register
+            write_memory(data, info.mode, Y);
             break;
         case TAX: // transfer a to x
             X = A;
