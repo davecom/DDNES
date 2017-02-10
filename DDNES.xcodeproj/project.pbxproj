@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFC1E4D6F0D00731450 /* DDROM.c */; };
+		556FCF011E4D8EAC00731450 /* DDTest.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFF1E4D8EAC00731450 /* DDTest.c */; };
+		556FCF031E4D944000731450 /* TestROMs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 556FCF021E4D929100731450 /* TestROMs */; };
 		558AC0811E3AC50D00B786DE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0801E3AC50D00B786DE /* main.c */; };
 		558AC0841E3B078800B786DE /* DD6502.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0821E3B078800B786DE /* DD6502.c */; };
 /* End PBXBuildFile section */
@@ -14,16 +17,22 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		558AC0721E3AC42200B786DE /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				556FCF031E4D944000731450 /* TestROMs in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		556FCEFC1E4D6F0D00731450 /* DDROM.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDROM.c; path = Sources/DDROM.c; sourceTree = "<group>"; };
+		556FCEFD1E4D6F0D00731450 /* DDROM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDROM.h; path = Sources/DDROM.h; sourceTree = "<group>"; };
+		556FCEFF1E4D8EAC00731450 /* DDTest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDTest.c; path = Sources/DDTest.c; sourceTree = "<group>"; };
+		556FCF001E4D8EAC00731450 /* DDTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTest.h; path = Sources/DDTest.h; sourceTree = "<group>"; };
+		556FCF021E4D929100731450 /* TestROMs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestROMs; sourceTree = "<group>"; };
 		558AC0741E3AC42200B786DE /* DDNES */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DDNES; sourceTree = BUILT_PRODUCTS_DIR; };
 		558AC0801E3AC50D00B786DE /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = Sources/main.c; sourceTree = "<group>"; };
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
@@ -47,6 +56,11 @@
 				558AC0801E3AC50D00B786DE /* main.c */,
 				558AC0821E3B078800B786DE /* DD6502.c */,
 				558AC0831E3B078800B786DE /* DD6502.h */,
+				556FCEFC1E4D6F0D00731450 /* DDROM.c */,
+				556FCEFD1E4D6F0D00731450 /* DDROM.h */,
+				556FCEFF1E4D8EAC00731450 /* DDTest.c */,
+				556FCF001E4D8EAC00731450 /* DDTest.h */,
+				556FCF021E4D929100731450 /* TestROMs */,
 				558AC0751E3AC42200B786DE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -117,6 +131,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */,
+				556FCF011E4D8EAC00731450 /* DDTest.c in Sources */,
 				558AC0841E3B078800B786DE /* DD6502.c in Sources */,
 				558AC0811E3AC50D00B786DE /* main.c in Sources */,
 			);
