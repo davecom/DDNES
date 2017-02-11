@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct {
     uint32_t marker;
@@ -31,8 +32,15 @@ typedef struct {
     uint8_t *chrRom;
     uint8_t *playChoiceInstRom;
     uint8_t *playChoiceProm;
+    uint8_t mapper;
+    bool verticalMirroring;
+    bool batteryBackedRAM;
+    bool trainerExists;
+    bool fourScreenVRAM;
+    bool PAL;
+    bool vsSystem;
 } ines_rom;
 
-ines_rom * loadROM(char *filePath);
+bool loadROM(char *filePath);
 
 #endif /* DDROM_h */

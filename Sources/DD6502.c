@@ -54,6 +54,11 @@ struct {
 
 #define DIFFERENT_PAGES(a1, a2) ((a1 & 0xFF00) != (a2 & 0xFF00))
 
+#define STACK_START 0xFD
+#define RESET_VECTOR 0xFFFC
+#define NMI_VECTOR 0xFFFA
+#define IRQ_BRK_VECTOR 0xFFFE
+
 typedef enum {
     ADC,
     AHX,
@@ -403,7 +408,7 @@ instruction_info instructions[256] = {
     {ISC, "ISC", ABSOLUTE_X, 0, 7, 0}, 			// ff
 };
 
-const int MEM_SIZE = 65536;
+const int MEM_SIZE = 2048;
 byte ram[MEM_SIZE]; // memory - 64k available to 6502, only 2k actually in NES
 
 bool page_crossed = false;
@@ -419,12 +424,16 @@ uint64_t cpu_ticks = 0;
 
 // for info on this, see https://wiki.nesdev.com/w/index.php/CPU_power_up_state
 void cpu_reset() {
+    // clear memory
+    memset(&ram, MEM_SIZE, 0);
+    
+    
     // reset registers
     registers.a = 0;
     registers.x = 0;
     registers.y = 0;
-    registers.sp = 0xff;
-    registers.pc = 0x100;
+    registers.sp = STACK_START;
+    registers.pc = ((word)read_memory(RESET_VECTOR, ABSOLUTE)) | (((word)read_memory(RESET_VECTOR + 1, ABSOLUTE)) << 8);
     // reset flags
     flags.c = false;
     flags.z = false;
@@ -433,8 +442,6 @@ void cpu_reset() {
     flags.b = false;
     flags.v = false;
     flags.n = false;
-    // clear memory
-    memset(&ram, MEM_SIZE, 0);
 }
 
 void cpu_cycle() {
@@ -534,7 +541,7 @@ void cpu_cycle() {
             ram[(0x0100 & SP)] = S;
             SP--;
             // set PC to reset vector
-            PC = ((word)ram[0xFFFE]) | (((word)ram[0xFFFF]) << 8);
+            PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE)) | (((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE) + 1) << 8);
             B = true;
             jumped = true;
             break;
@@ -585,9 +592,10 @@ void cpu_cycle() {
         }
         case DEC: // decrement memory
         {
-            word address = address_for_mode(data, info.mode);
-            ram[address]--;
-            setZN(ram[address]);
+            byte src = read_memory(data, info.mode);
+            src--;
+            write_memory(data, info.mode, src);
+            setZN((src));
             break;
         }
         case DEX: // decrement X
@@ -604,9 +612,10 @@ void cpu_cycle() {
             break;
         case INC: // increment memory
         {
-            word address = address_for_mode(data, info.mode);
-            ram[address]++;
-            setZN(ram[address]);
+            byte src = read_memory(data, info.mode);
+            src++;
+            write_memory(data, info.mode, src);
+            setZN((src));
             break;
         }
         case INX: // increment x
@@ -815,7 +824,20 @@ static inline byte read_memory(word data, mem_mode mode) {
         return (byte)data;
     }
     word address = address_for_mode(data, mode);
-    return ram[address];
+    
+    // figure out based on memory map http://wiki.nesdev.com/w/index.php/CPU_memory_map
+    if (address < 0x2000) { // main ram 2 KB up to 0800
+        return ram[address % 0x0800]; // mirrors for the next 6 KB
+    } else if (address <= 0x3FFF) { // 2000-2007 is PPU, up to 3FFF mirrors it every 8 bytes
+        //word temp = ((address % 8) | 0x2000); // TODO change to PPU
+        return 0;
+    } else if (address <= 0x4017) { // APU and IO
+        return 0; // TODO put in APU stuff
+    } else if (address <= 0x401F) { // usually disabled APU & IO
+        return 0;
+    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+        return 0;
+    }
 }
 
 static inline void write_memory(word data, mem_mode mode, byte value) {

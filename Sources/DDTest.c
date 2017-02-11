@@ -11,11 +11,9 @@
 #include "DDROM.h"
 
 bool CPUTest() {
-    ines_rom *rom = loadROM("TestROMs/official_only.nes");
-    if (rom == NULL) {
+    if (!loadROM("TestROMs/official_only.nes")) { // load the rom
         return false;
     }
-    printf("%d rom size\n", rom->header.prgRomSize);
     return true;
 }
 
