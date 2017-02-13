@@ -37,6 +37,7 @@
 		558AC0801E3AC50D00B786DE /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = Sources/main.c; sourceTree = "<group>"; };
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
 		558AC0831E3B078800B786DE /* DD6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DD6502.h; path = Sources/DD6502.h; sourceTree = "<group>"; };
+		55CD01A51E50D71200D4C7AB /* DDTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTypes.h; path = Sources/DDTypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +59,7 @@
 				558AC0831E3B078800B786DE /* DD6502.h */,
 				556FCEFC1E4D6F0D00731450 /* DDROM.c */,
 				556FCEFD1E4D6F0D00731450 /* DDROM.h */,
+				55CD01A51E50D71200D4C7AB /* DDTypes.h */,
 				556FCEFF1E4D8EAC00731450 /* DDTest.c */,
 				556FCF001E4D8EAC00731450 /* DDTest.h */,
 				556FCF021E4D929100731450 /* TestROMs */,

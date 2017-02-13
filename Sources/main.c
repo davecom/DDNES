@@ -9,12 +9,11 @@
 #include <stdio.h>
 #include "DDROM.h"
 #include "DDTest.h"
-
-#define TEST
+#include "DDTypes.h"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    printf("Hello, World!\n");
+    printf("Hello, World! %.4X\n", 84 << 0 | 85 << 8);
 
     #ifdef TEST
     test();

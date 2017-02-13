@@ -12,35 +12,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "DDTypes.h"
 
 typedef struct {
     uint32_t marker;
-    uint8_t prgRomSize; // in 16 kb units
-    uint8_t chrRomSize; // in 8 kb units
-    uint8_t flags6;
-    uint8_t flags7;
-    uint8_t prgRamSize; // in 8 kb units
-    uint8_t flags9;
-    uint8_t flags10;
-    uint8_t zeros[5];
+    byte prgRomSize; // in 16 kb units
+    byte chrRomSize; // in 8 kb units
+    byte flags6;
+    byte flags7;
+    byte prgRamSize; // in 8 kb units
+    byte flags9;
+    byte flags10;
+    byte zeros[5];
 } ines_header;
 
 typedef struct {
     ines_header header;
-    uint8_t *trainer;
-    uint8_t *prgRom;
-    uint8_t *chrRom;
-    uint8_t *playChoiceInstRom;
-    uint8_t *playChoiceProm;
-    uint8_t mapper;
+    byte *trainer;
+    byte *prgRom;
+    byte *chrRom;
+    byte *prgRam;
+    byte *playChoiceInstRom;
+    byte *playChoiceProm;
+    byte mapper;
     bool verticalMirroring;
     bool batteryBackedRAM;
     bool trainerExists;
     bool fourScreenVRAM;
     bool PAL;
     bool vsSystem;
+    byte (*readCartridge)(word address);
+    void (*writeCartridge)(word address, byte value);
 } ines_rom;
 
+extern ines_rom *rom;
+
 bool loadROM(char *filePath);
+void unloadROM();
+
+byte readMapper0(word address);
+void writeMapper0(word address, byte value);
+
+byte readMapper1(word address);
+void writeMapper1(word address, byte value);
 
 #endif /* DDROM_h */

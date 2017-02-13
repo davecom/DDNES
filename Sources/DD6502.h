@@ -12,9 +12,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-
-typedef uint8_t byte;
-typedef uint16_t word;
+#include "DDROM.h"
+#include "DDTypes.h"
 
 typedef enum {
     DUMMY,
@@ -37,8 +36,11 @@ typedef enum {
  Reset all registers, flags, and memory to defaults
  */
 void cpu_reset();
-
 void cpu_cycle();
+#ifdef TEST
+void PC_Move(word address);
+#endif
+
 
 static inline byte read_memory(word data, mem_mode mode);
 static inline void write_memory(word data, mem_mode mode, byte value);

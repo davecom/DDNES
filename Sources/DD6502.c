@@ -444,15 +444,24 @@ void cpu_reset() {
     flags.n = false;
 }
 
+void debugPrint(instruction_info info, byte opcode, word data) {
+    printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP);
+}
+
 void cpu_cycle() {
-    byte opcode = ram[registers.pc];
+    byte opcode = read_memory(PC, ABSOLUTE);
     page_crossed = false;
     bool jumped = false;
     instruction_info info = instructions[opcode];
     word data = 0;  // could be 8 bit or 16 bit, if 16 high byte is just 0
-    for (int i = 1; i < info.length; i++) {
-        data |= (ram[registers.pc + i] << (i-1 * 8));  // low byte comes first
+    for (byte i = 1; i < info.length; i++) {
+        data |= (read_memory(PC + i, ABSOLUTE) << ((i-1) * 8));  // low byte comes first
     }
+    //printf("%d %.4X\n", info.length, data);
+    
+    #ifdef TEST
+    debugPrint(info, opcode, data);
+    #endif
     
     switch (info.instruction) {
         case ADC: // add memory to accumulator with carry
@@ -754,7 +763,7 @@ void cpu_cycle() {
             byte hb = ram[(0x0100 & SP)];
             SP++;
             byte lb = ram[(0x0100 & SP)];
-            PC = ((((word)hb) << 8) |  lb) + 1; // it was -1 on the other side
+            PC = ((((word)hb) << 8) |  lb); // it was -1 on the other side
             jumped = true;
             break;
         }
@@ -835,8 +844,10 @@ static inline byte read_memory(word data, mem_mode mode) {
         return 0; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO
         return 0;
-    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+    } else if (address < 0x6000) { // IO usually unused
         return 0;
+    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+        return rom->readCartridge(address);
     }
 }
 
@@ -846,7 +857,22 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
         return;
     }
     word address = address_for_mode(data, mode);
-    ram[address] = value;
+    
+    // figure out based on memory map http://wiki.nesdev.com/w/index.php/CPU_memory_map
+    if (address < 0x2000) { // main ram 2 KB up to 0800
+        ram[address % 0x0800] = value; // mirrors for the next 6 KB
+    } else if (address <= 0x3FFF) { // 2000-2007 is PPU, up to 3FFF mirrors it every 8 bytes
+        //word temp = ((address % 8) | 0x2000); // TODO change to PPU
+        return;
+    } else if (address <= 0x4017) { // APU and IO
+        return; // TODO put in APU stuff
+    } else if (address <= 0x401F) { // usually disabled APU & IO
+        return;
+    } else if (address < 0x6000) { // IO usually unused
+        return;
+    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+        rom->writeCartridge(address, value);
+    }
 }
 
 static inline word address_for_mode(word data, mem_mode mode) {
@@ -908,3 +934,9 @@ static inline void setZN(byte value) {
     Z = (value == 0);
     N = (((char)value) < 0);
 }
+
+#ifdef TEST
+void PC_Move(word address) {
+    PC = address;
+}
+#endif
