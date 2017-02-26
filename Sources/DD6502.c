@@ -467,11 +467,11 @@ void cpu_cycle() {
         case ADC: // add memory to accumulator with carry
         {
             byte src = read_memory(data, info.mode);
-            A += (src + C);
             unsigned int uiresult = (unsigned int)(src + A + C);
-            C = (uiresult > 0xFF); // set carry
             int siresult = (int)((char)src + (char)A + (char)C);
-            V = (siresult > 127 || siresult < -128);  // set overflow
+            A += (src + C);
+            C = (uiresult > 0xFF); // set carry
+            V = ((siresult > 127) || (siresult < -128));  // set overflow
             setZN(A);
             break;
         }
@@ -542,16 +542,18 @@ void cpu_cycle() {
         case BRK: // force break
             PC += 2;
             // push pc to stack
-            ram[(0x0100 & SP)] = (byte)(PC >> 8);
+            ram[(0x0100 | SP)] = (byte)(PC >> 8);
             SP--;
-            ram[(0x0100 & SP)] = (byte)(PC & 0xFF);
+            ram[(0x0100 | SP)] = (byte)(PC & 0xFF);
             SP--;
+            B = true; // http://nesdev.com/the%20'B'%20flag%20&%20BRK%20instruction.txt
             // push S to stack
-            ram[(0x0100 & SP)] = S;
+            ram[(0x0100 | SP)] = S;
             SP--;
+            B = false;
             // set PC to reset vector
             PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE)) | (((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE) + 1) << 8);
-            B = true;
+            
             jumped = true;
             break;
         case BVC: // branch on overflow clear
@@ -644,9 +646,9 @@ void cpu_cycle() {
             // push next instruction address onto stack
             PC += 2;
             // push next instruction to stack
-            ram[(0x0100 & SP)] = (byte)(PC >> 8);
+            ram[(0x0100 | SP)] = (byte)(PC >> 8);
             SP--;
-            ram[(0x0100 & SP)] = (byte)(PC & 0xFF);
+            ram[(0x0100 | SP)] = (byte)(PC & 0xFF);
             SP--;
             // jump to subroutine
             PC = address_for_mode(data, info.mode);
@@ -685,26 +687,29 @@ void cpu_cycle() {
             setZN(A);
             break;
         case PHA: // push accumulator
-            ram[(0x0100 & SP)] = A;
+            ram[(0x0100 | SP)] = A;
             SP--;
             break;
         case PHP: // push status
-            ram[(0x0100 & SP)] = S;
+            B = true; // http://nesdev.com/the%20'B'%20flag%20&%20BRK%20instruction.txt
+            ram[(0x0100 | SP)] = S;
             SP--;
+            B = false;
             break;
         case PLA: // pull accumulator
             SP++;
-            A = ram[(0x0100 & SP)];
+            A = ram[(0x0100 | SP)];
+            setZN(A);
             break;
         case PLP: // pull status
         {
             SP++;
-            byte temp = ram[(0x0100 & SP)];
+            byte temp = ram[(0x0100 | SP)];
             C = temp & 0b00000001;
             Z = temp & 0b00000010;
             I = temp & 0b00000100;
             D = temp & 0b00001000;
-            B = temp & 0b00010000;
+            B = false; // http://nesdev.com/the%20'B'%20flag%20&%20BRK%20instruction.txt
             V = temp & 0b01000000;
             N = temp & 0b10000000;
             break;
@@ -739,19 +744,19 @@ void cpu_cycle() {
         {
             // pull Status out
             SP++;
-            byte temp = ram[(0x0100 & SP)];
+            byte temp = ram[(0x0100 | SP)];
             C = temp & 0b00000001;
             Z = temp & 0b00000010;
             I = temp & 0b00000100;
             D = temp & 0b00001000;
-            B = temp & 0b00010000;
+            B = false; //http://nesdev.com/the%20'B'%20flag%20&%20BRK%20instruction.txt
             V = temp & 0b01000000;
             N = temp & 0b10000000;
             // pull PC out
             SP++;
-            byte hb = ram[(0x0100 & SP)];
+            byte lb = ram[(0x0100 | SP)];
             SP++;
-            byte lb = ram[(0x0100 & SP)];
+            byte hb = ram[(0x0100 | SP)];
             PC = (((word)hb) << 8) |  lb;
             jumped = true;
             break;
@@ -760,20 +765,20 @@ void cpu_cycle() {
         {
             // pull PC out
             SP++;
-            byte hb = ram[(0x0100 & SP)];
+            byte lb = ram[(0x0100 | SP)];
             SP++;
-            byte lb = ram[(0x0100 & SP)];
-            PC = ((((word)hb) << 8) |  lb); // it was -1 on the other side
+            byte hb = ram[(0x0100 | SP)];
+            PC = (((((word)hb) << 8) |  lb) + 1); // it was -1 on the other side
             jumped = true;
             break;
         }
         case SBC: // subtract with carry
         {
             byte src = read_memory(data, info.mode);
-            A -= (src - C);
             unsigned int uiresult = (unsigned int)(src - A - C);
-            C = (uiresult > 0xFF); // set carry
             int siresult = (int)((char)src - (char)A - (char)C);
+            A -= (src - C);
+            C = (uiresult > 0xFF); // set carry
             V = (siresult > 127 || siresult < -128);  // set overflow
             setZN(A);
             break;
