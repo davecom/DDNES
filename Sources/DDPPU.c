@@ -37,7 +37,7 @@ struct {
 const int SPR_RAM_SIZE = 256;
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 
-static inline void write_ppu_register(word address, byte value) {
+void write_ppu_register(word address, byte value) {
     switch(address) {
         case 0x2000:
             PPU_CONTROL1 = value;
@@ -78,6 +78,6 @@ static inline void write_ppu_register(word address, byte value) {
     }
 }
 
-static inline byte read_ppu_register(word address) {
+byte read_ppu_register(word address) {
     return 0;
 }

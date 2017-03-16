@@ -14,7 +14,7 @@
 #include "DDTypes.h"
 
 
-static inline void write_ppu_register(word address, byte value);
-static inline byte read_ppu_register(word address);
+void write_ppu_register(word address, byte value);
+byte read_ppu_register(word address);
 
 #endif /* DDPPU_h */
