@@ -30,7 +30,7 @@ bool CPUTest2() {
     printf("Mapper %d\n", rom->mapper);
     cpu_reset();
     PC_Move(0xC000); // for automated testing
-    for (int i = 0; i < 300; i++) { // run 300 instructions
+    for (int i = 0; i < 8992; i++) { // run 300 instructions
         cpu_cycle();
     }
     unloadROM();

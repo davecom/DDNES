@@ -843,15 +843,15 @@ static inline byte read_memory(word data, mem_mode mode) {
     if (address < 0x2000) { // main ram 2 KB up to 0800
         return ram[address % 0x0800]; // mirrors for the next 6 KB
     } else if (address <= 0x3FFF) { // 2000-2007 is PPU, up to 3FFF mirrors it every 8 bytes
-        //word temp = ((address % 8) | 0x2000); // TODO change to PPU
-        return 0;
+        word temp = ((address % 8) | 0x2000); // get data from ppu register
+        return read_ppu_register(temp);
     } else if (address <= 0x4017) { // APU and IO
         return 0; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO
         return 0;
     } else if (address < 0x6000) { // IO usually unused
         return 0;
-    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+    } else { // must be in range 0x6000 to 0xFFFF CARTRIDGE data
         return rom->readCartridge(address);
     }
 }
@@ -867,7 +867,8 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
     if (address < 0x2000) { // main ram 2 KB up to 0800
         ram[address % 0x0800] = value; // mirrors for the next 6 KB
     } else if (address <= 0x3FFF) { // 2000-2007 is PPU, up to 3FFF mirrors it every 8 bytes
-        //word temp = ((address % 8) | 0x2000); // TODO change to PPU
+        word temp = ((address % 8) | 0x2000); // write data to ppu register
+        write_ppu_register(temp, value);
         return;
     } else if (address <= 0x4017) { // APU and IO
         return; // TODO put in APU stuff
@@ -875,7 +876,7 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
         return;
     } else if (address < 0x6000) { // IO usually unused
         return;
-    } else { // must be in range /0x4020 to 0xFFFF CARTRIDGE data
+    } else { // must be in range /0x6000 to 0xFFFF CARTRIDGE data
         rom->writeCartridge(address, value);
     }
 }

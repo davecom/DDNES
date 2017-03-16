@@ -14,6 +14,7 @@
 #include <string.h>
 #include "DDROM.h"
 #include "DDTypes.h"
+#include "DDPPU.h"
 
 typedef enum {
     DUMMY,

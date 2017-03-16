@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */ = {isa = PBXBuildFile; fileRef = 5522A6FC1E6690CE001ECF64 /* DDPPU.c */; };
 		556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFC1E4D6F0D00731450 /* DDROM.c */; };
 		556FCF011E4D8EAC00731450 /* DDTest.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFF1E4D8EAC00731450 /* DDTest.c */; };
 		556FCF031E4D944000731450 /* TestROMs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 556FCF021E4D929100731450 /* TestROMs */; };
@@ -28,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5522A6FC1E6690CE001ECF64 /* DDPPU.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDPPU.c; path = Sources/DDPPU.c; sourceTree = "<group>"; };
+		5522A6FD1E6690CE001ECF64 /* DDPPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDPPU.h; path = Sources/DDPPU.h; sourceTree = "<group>"; };
 		556FCEFC1E4D6F0D00731450 /* DDROM.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDROM.c; path = Sources/DDROM.c; sourceTree = "<group>"; };
 		556FCEFD1E4D6F0D00731450 /* DDROM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDROM.h; path = Sources/DDROM.h; sourceTree = "<group>"; };
 		556FCEFF1E4D8EAC00731450 /* DDTest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDTest.c; path = Sources/DDTest.c; sourceTree = "<group>"; };
@@ -59,6 +62,8 @@
 				558AC0831E3B078800B786DE /* DD6502.h */,
 				556FCEFC1E4D6F0D00731450 /* DDROM.c */,
 				556FCEFD1E4D6F0D00731450 /* DDROM.h */,
+				5522A6FC1E6690CE001ECF64 /* DDPPU.c */,
+				5522A6FD1E6690CE001ECF64 /* DDPPU.h */,
 				55CD01A51E50D71200D4C7AB /* DDTypes.h */,
 				556FCEFF1E4D8EAC00731450 /* DDTest.c */,
 				556FCF001E4D8EAC00731450 /* DDTest.h */,
@@ -134,6 +139,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */,
+				5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */,
 				556FCF011E4D8EAC00731450 /* DDTest.c in Sources */,
 				558AC0841E3B078800B786DE /* DD6502.c in Sources */,
 				558AC0811E3AC50D00B786DE /* main.c in Sources */,
