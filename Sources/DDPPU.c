@@ -34,7 +34,6 @@ struct {
 #define NAME_TABLE_ADDRESS (PPU_CONTROL1 & 0b00000011)
 #define ADDRESS_INCREMENT ((PPU_CONTROL1 & 0b00000100) ? 32 : 1)
 
-const int SPR_RAM_SIZE = 256;
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 
 void write_ppu_register(word address, byte value) {
@@ -71,7 +70,7 @@ void write_ppu_register(word address, byte value) {
             }
             W = !W;
             break;
-        case 0x2007: // implement writing
+        case 0x2007: // implement writing to vram
             break;
         default:
             break;
@@ -80,4 +79,10 @@ void write_ppu_register(word address, byte value) {
 
 byte read_ppu_register(word address) {
     return 0;
+}
+
+// started from write to $4014
+// fill spr_ram starting from cpuMemLocation
+void dma_transfer(byte *cpuMemLocation) {
+    memcpy(cpuMemLocation, spr_ram, SPR_RAM_SIZE);
 }

@@ -417,6 +417,9 @@ bool page_crossed = false;
 uint64_t cpu_ticks = 0;
 #define CPU_TICK(x) (cpu_ticks += x)
 
+// number of cycles to stall
+int stall = 0;
+
 // instruction info tables
 
 
@@ -426,8 +429,8 @@ uint64_t cpu_ticks = 0;
 void cpu_reset() {
     // clear memory
     memset(&ram, MEM_SIZE, 0);
-    
-    
+    // reset stall
+    stall = 0;
     // reset registers
     registers.a = 0;
     registers.x = 0;
@@ -449,6 +452,14 @@ void debugPrint(instruction_info info, byte opcode, word data) {
 }
 
 void cpu_cycle() {
+    if (stall > 0) {
+        stall--;
+        #ifdef TEST
+        printf("Stalling for another %d cycles.", stall);
+        #endif
+        return;
+    }
+    
     byte opcode = read_memory(PC, ABSOLUTE);
     page_crossed = false;
     bool jumped = false;
@@ -871,6 +882,16 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
         write_ppu_register(temp, value);
         return;
     } else if (address <= 0x4017) { // APU and IO
+        if (address == 0x4014) { // dma transfer of sprite data
+            // we iteratively read incase there is a change from one type of memory to another
+            word fromAddress = (value * 0x100); // this is the address to start copying from
+            byte tempArray[SPR_RAM_SIZE]; // not the most efficient, but no direct ppu mem access here
+            for (int i = 0; i < SPR_RAM_SIZE; i++) {
+                tempArray[i] = read_memory((fromAddress + i), ABSOLUTE);
+            }
+            dma_transfer(tempArray);
+            // stall for 512 cycles while this completes
+        }
         return; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO
         return;
