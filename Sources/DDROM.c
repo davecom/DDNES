@@ -127,7 +127,9 @@ void unloadROM() {
 }
 
 byte readMapper0(word address) {
-    if (address >= 0x6000 && address < 0x8000) {
+    if (address < 0x2000) {
+        return rom->chrRom[address];
+    } else if (address >= 0x6000 && address < 0x8000) {
         return rom->prgRam[address - 0x6000];
     } else if (address > 0x8000) {
         if (rom->header.prgRomSize > 1) {
@@ -142,7 +144,9 @@ byte readMapper0(word address) {
 }
 
 void writeMapper0(word address, byte value) {
-    if (address >= 0x6000 && address < 0x8000) {
+    if (address < 0x2000) {
+        rom->chrRom[address] = value;
+    } else if (address >= 0x6000 && address < 0x8000) {
         rom->prgRam[address - 0x6000] = value;
     } else {
         fprintf(stderr, "Tried to write to cartridge at invalid address %.4X!\n", address);
