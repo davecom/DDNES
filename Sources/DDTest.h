@@ -12,6 +12,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-void test();
+void test(void);
 
 #endif /* DDTest_h */

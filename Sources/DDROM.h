@@ -48,7 +48,7 @@ typedef struct {
 extern ines_rom *rom;
 
 bool loadROM(char *filePath);
-void unloadROM();
+void unloadROM(void);
 
 byte readMapper0(word address);
 void writeMapper0(word address, byte value);

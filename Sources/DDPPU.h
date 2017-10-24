@@ -19,7 +19,7 @@
 #define NAMETABLE_SIZE 2048
 #define PALETTE_SIZE 32
 
-void ppu_reset();
+void ppu_reset(void);
 void write_ppu_register(word address, byte value);
 byte read_ppu_register(word address);
 static inline byte ppu_mem_read(word address);

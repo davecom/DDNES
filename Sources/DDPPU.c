@@ -19,17 +19,17 @@ struct {
     word t; // temporary VRAM address (15 bits)
     byte x; // fine X scroll (3 bits)
     bool w; // write toggle
-} registers;
+} ppu_registers;
 
-#define PPU_CONTROL1 registers.ppu_control1
-#define PPU_CONTROL2 registers.ppu_control2
-#define PPU_STATUS registers.ppu_status
-#define SPR_RAM_ADDRESS registers.spr_ram_address
-#define SPR_RAM_IO registers.spr_ram_io
-#define V registers.v
-#define T registers.t
-#define X registers.x
-#define W registers.w
+#define PPU_CONTROL1 ppu_registers.ppu_control1
+#define PPU_CONTROL2 ppu_registers.ppu_control2
+#define PPU_STATUS ppu_registers.ppu_status
+#define SPR_RAM_ADDRESS ppu_registers.spr_ram_address
+#define SPR_RAM_IO ppu_registers.spr_ram_io
+#define V ppu_registers.v
+#define T ppu_registers.t
+#define X ppu_registers.x
+#define W ppu_registers.w
 
 #define NAME_TABLE_ADDRESS (PPU_CONTROL1 & 0b00000011)
 #define ADDRESS_INCREMENT ((PPU_CONTROL1 & 0b00000100) ? 32 : 1)

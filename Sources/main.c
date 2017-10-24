@@ -10,6 +10,7 @@
 #include "DDROM.h"
 #include "DDTest.h"
 #include "DDTypes.h"
+#include <SDL2/SDL.h>
 
 int main(int argc, const char * argv[]) {
     // insert code here...

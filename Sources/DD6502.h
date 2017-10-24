@@ -36,8 +36,8 @@ typedef enum {
 /**
  Reset all registers, flags, and memory to defaults
  */
-void cpu_reset();
-void cpu_cycle();
+void cpu_reset(void);
+void cpu_cycle(void);
 #ifdef TEST
 void PC_Move(word address);
 #endif
