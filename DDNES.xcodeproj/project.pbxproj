@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		550C12ED20F5B44800D28246 /* DDUI.c in Sources */ = {isa = PBXBuildFile; fileRef = 550C12EC20F5B44800D28246 /* DDUI.c */; };
 		5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */ = {isa = PBXBuildFile; fileRef = 5522A6FC1E6690CE001ECF64 /* DDPPU.c */; };
 		5532327A1F9F03EF0068AC4D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553232791F9F03EF0068AC4D /* SDL2.framework */; };
 		5532327B1F9F08FB0068AC4D /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 553232791F9F03EF0068AC4D /* SDL2.framework */; };
@@ -32,6 +33,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		550C12EB20F5B44800D28246 /* DDUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DDUI.h; path = Sources/DDUI.h; sourceTree = "<group>"; };
+		550C12EC20F5B44800D28246 /* DDUI.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DDUI.c; path = Sources/DDUI.c; sourceTree = "<group>"; };
 		5522A6FC1E6690CE001ECF64 /* DDPPU.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDPPU.c; path = Sources/DDPPU.c; sourceTree = "<group>"; };
 		5522A6FD1E6690CE001ECF64 /* DDPPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDPPU.h; path = Sources/DDPPU.h; sourceTree = "<group>"; };
 		553232791F9F03EF0068AC4D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = SDL/SDL2.framework; sourceTree = "<group>"; };
@@ -80,6 +83,8 @@
 				55CD01A51E50D71200D4C7AB /* DDTypes.h */,
 				556FCEFF1E4D8EAC00731450 /* DDTest.c */,
 				556FCF001E4D8EAC00731450 /* DDTest.h */,
+				550C12EC20F5B44800D28246 /* DDUI.c */,
+				550C12EB20F5B44800D28246 /* DDUI.h */,
 				556FCF021E4D929100731450 /* TestROMs */,
 				558AC0751E3AC42200B786DE /* Products */,
 				553232781F9F03EE0068AC4D /* Frameworks */,
@@ -120,7 +125,7 @@
 		558AC06C1E3AC42200B786DE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "David Kopec";
 				TargetAttributes = {
 					558AC0731E3AC42200B786DE = {
@@ -153,6 +158,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */,
+				550C12ED20F5B44800D28246 /* DDUI.c in Sources */,
 				5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */,
 				556FCF011E4D8EAC00731450 /* DDTest.c in Sources */,
 				558AC0841E3B078800B786DE /* DD6502.c in Sources */,
@@ -176,6 +182,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -183,6 +190,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -229,6 +237,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -236,6 +245,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

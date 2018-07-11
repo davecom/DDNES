@@ -142,7 +142,7 @@ typedef struct {
     char name[4]; // string descriptor like "LDA"
     mem_mode mode; // memory access mode
     byte length; // how many bytes long is the instruction with its data
-    byte ticks; // how many CPU cycles does hte instruction need
+    byte ticks; // how many CPU cycles does the instruction need
     byte pageTicks; // how many CPU cycles does it take when a page is crossed
 } instruction_info;
 
@@ -454,7 +454,8 @@ void debugPrint(instruction_info info, byte opcode, word data) {
 void cpu_cycle() {
     if (stall > 0) {
         stall--;
-        #ifdef TEST
+        CPU_TICK(1);
+        #ifdef DEBUG
         printf("Stalling for another %d cycles.", stall);
         #endif
         return;
@@ -470,7 +471,7 @@ void cpu_cycle() {
     }
     //printf("%d %.4X\n", info.length, data);
     
-    #ifdef TEST
+    #ifdef DEBUG
     debugPrint(info, opcode, data);
     #endif
     
@@ -891,6 +892,7 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
             }
             dma_transfer(tempArray);
             // stall for 512 cycles while this completes
+            stall = 512;
         }
         return; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO

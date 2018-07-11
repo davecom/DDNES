@@ -14,12 +14,14 @@
 #include <stdbool.h>
 #include "DDTypes.h"
 #include "DDROM.h"
+#include "DDUI.h"
 
 #define SPR_RAM_SIZE 256
 #define NAMETABLE_SIZE 2048
 #define PALETTE_SIZE 32
 
 void ppu_reset(void);
+void ppu_step(void);
 void write_ppu_register(word address, byte value);
 byte read_ppu_register(word address);
 static inline byte ppu_mem_read(word address);

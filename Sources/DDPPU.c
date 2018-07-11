@@ -56,6 +56,21 @@ void ppu_reset() {
     W = false;
 }
 
+void ppu_step() {
+    static int scanline = 0;
+    static int cycle = 0;
+    
+    draw_pixel(5, 5, 5, 5, 23);
+    
+    if (cycle > 340) {
+        cycle = 0;
+        scanline++;
+        if (scanline > 261) {
+            scanline = 0;
+        }
+    }
+}
+
 
 void write_ppu_register(word address, byte value) {
     switch(address) {

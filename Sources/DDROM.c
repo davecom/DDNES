@@ -27,7 +27,7 @@ void (*mapperWriters[2])(word address, byte value)= {
 };
 
 // returns false on failure
-bool loadROM(char *filePath) {
+bool loadROM(const char *filePath) {
     FILE *file = fopen(filePath, "r");
     if (file == NULL) { // couldn't open file
         fprintf(stderr, "Can't open output file %s!\n", filePath);
