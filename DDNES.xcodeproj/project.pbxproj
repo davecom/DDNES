@@ -43,6 +43,7 @@
 		556FCEFF1E4D8EAC00731450 /* DDTest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDTest.c; path = Sources/DDTest.c; sourceTree = "<group>"; };
 		556FCF001E4D8EAC00731450 /* DDTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTest.h; path = Sources/DDTest.h; sourceTree = "<group>"; };
 		556FCF021E4D929100731450 /* TestROMs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestROMs; sourceTree = "<group>"; };
+		5580EA9220F6A7F800FA9695 /* c11threads.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = c11threads.h; path = Sources/c11threads.h; sourceTree = "<group>"; };
 		558AC0741E3AC42200B786DE /* DDNES */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DDNES; sourceTree = BUILT_PRODUCTS_DIR; };
 		558AC0801E3AC50D00B786DE /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = Sources/main.c; sourceTree = "<group>"; };
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
@@ -73,6 +74,7 @@
 		558AC06B1E3AC42200B786DE = {
 			isa = PBXGroup;
 			children = (
+				5580EA9220F6A7F800FA9695 /* c11threads.h */,
 				558AC0801E3AC50D00B786DE /* main.c */,
 				558AC0821E3B078800B786DE /* DD6502.c */,
 				558AC0831E3B078800B786DE /* DD6502.h */,
@@ -203,7 +205,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -258,7 +260,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

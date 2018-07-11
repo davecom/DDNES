@@ -7,6 +7,9 @@
 //
 
 #include <stdio.h>
+// temporary until clang supports <threads.h>
+// from the c11 standard
+#include "c11threads.h"
 #include "DDROM.h"
 #include "DD6502.h"
 #include "DDTest.h"
@@ -15,6 +18,20 @@
 
 
 extern uint64_t cpu_ticks;
+
+int emulate(void *data) {
+    cpu_reset();
+    while(1) { // run 8992 instructions
+        uint64_t last_ticks = cpu_ticks;
+        cpu_cycle();
+        uint64_t difference = cpu_ticks - last_ticks;
+        for (int j = 0; j < (difference * 3); j++) { // 3 ppu ticks for every 1 cpu tick
+            ppu_step();
+        }
+    }
+    unloadROM();
+    return 0;
+}
 
 int main(int argc, const char * argv[]) {
     // printf("Hello, World! %.4X\n", 84 << 0 | 85 << 8);
@@ -30,18 +47,13 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
     printf("Mapper %d\n", rom->mapper);
+    // create ui
     display_main_window(argv[1]);
-    cpu_reset();
-    for (int i = 0; i < 8992; i++) { // run 8992 instructions
-        uint64_t last_ticks = cpu_ticks;
-        cpu_cycle();
-        uint64_t difference = cpu_ticks - last_ticks;
-        for (int j = 0; j < (difference * 3); j++) { // 3 ppu ticks for every 1 cpu tick
-            ppu_step();
-        }
-    }
-    unloadROM();
+    // start separate thread for emulator
+    thrd_t emuthr;
+    thrd_create(&emuthr, emulate, NULL);
+    // start ui event loop
+    event_loop();
     #endif
-    
     return 0;
 }
