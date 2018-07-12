@@ -60,7 +60,7 @@ void ppu_step() {
     static int scanline = 0;
     static int cycle = 0;
     
-    draw_pixel(5, 5, 5, 5, 23);
+    draw_pixel(5, 5, 255, 5, 23);
     
     if (cycle > 340) {
         cycle = 0;

@@ -448,7 +448,7 @@ void cpu_reset() {
 }
 
 void debugPrint(instruction_info info, byte opcode, word data) {
-    printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP);
+    printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X %llu\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP, cpu_ticks);
 }
 
 void cpu_cycle() {
@@ -471,9 +471,12 @@ void cpu_cycle() {
     }
     //printf("%d %.4X\n", info.length, data);
     
-    #ifdef DEBUG
-    debugPrint(info, opcode, data);
-    #endif
+    //#ifdef DEBUG
+    //debugPrint(info, opcode, data);
+    //#endif
+    if (cpu_ticks % 1000000 < 7) {
+        printf("hit %lld ticks\n", cpu_ticks);
+    }
     
     switch (info.instruction) {
         case ADC: // add memory to accumulator with carry

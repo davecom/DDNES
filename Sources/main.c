@@ -51,6 +51,7 @@ int main(int argc, const char * argv[]) {
     display_main_window(argv[1]);
     // start separate thread for emulator
     thrd_t emuthr;
+    
     thrd_create(&emuthr, emulate, NULL);
     // start ui event loop
     event_loop();
