@@ -472,7 +472,7 @@ void cpu_cycle() {
     //printf("%d %.4X\n", info.length, data);
     
     //#ifdef DEBUG
-    //debugPrint(info, opcode, data);
+    debugPrint(info, opcode, data);
     //#endif
     if (cpu_ticks % 1000000 < 7) {
         printf("hit %lld ticks\n", cpu_ticks);

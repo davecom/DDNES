@@ -31,8 +31,11 @@ struct {
 #define X ppu_registers.x
 #define W ppu_registers.w
 
-#define NAME_TABLE_ADDRESS (PPU_CONTROL1 & 0b00000011)
+#define NAME_TABLE_ADDRESS ((PPU_CONTROL1 & 0b00000011) * 0x400)
 #define ADDRESS_INCREMENT ((PPU_CONTROL1 & 0b00000100) ? 32 : 1)
+// ignored for 8x16 sprites
+#define SPRITE_PATTERN_TABLE_ADDRESS (((PPU_CONTROL1 & 0b00001000) >> 3) * 0x1000)
+#define BACKGROUND_PATTERN_TABLE_ADDRESS (((PPU_CONTROL1 & 0b00010000) >> 4) * 0x1000)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 byte nametables[NAMETABLE_SIZE]; // nametable ram
@@ -56,12 +59,69 @@ void ppu_reset() {
     W = false;
 }
 
-void ppu_step() {
+
+
+//// just for debugging
+//static void draw_background_pixel(int scanline, int cycle) {
+//    index = scanline
+//}
+// Based on https://wiki.nesdev.com/w/index.php/PPU_scrolling
+// and https://github.com/fogleman/nes/blob/master/nes/ppu.go
+inline void ppu_step() {
     static int scanline = 0;
     static int cycle = 0;
+    static byte name_table_byte = 0;
+    static byte shift = 0;
+    static byte attribute_table_byte = 0;
+    static byte low_tile_byte = 0;
+    static byte high_tile_byte = 0;
+    static uint64_t tile_data = 0;
+    static word address = 0; // temp;
+    static byte fine_y = 0;
     
-    draw_pixel(5, 5, 255, 5, 23);
+    // just for debugging
+    if (scanline < 240 && cycle < 256) {
+        // vblank off
+        PPU_STATUS &= 0b01111111;
+        // render
+        byte color = (tile_data >> ((7 - X) * 4) & 0x0F);
+        draw_pixel(cycle, scanline, color);
+        // prepare for next render
+        tile_data <<= 4;
+        switch (cycle % 8) {
+            case 1:
+                address = 0x2000 | (V & 0x0FFF);
+                name_table_byte = ppu_mem_read(address);
+                break;
+            case 3:
+                address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
+                shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
+                attribute_table_byte = ((ppu_mem_read(address) >> shift) & 3) << 2;
+                break;
+            case 5:
+                fine_y = (V >> 12) & 0b0111;
+                address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
+                low_tile_byte = ppu_mem_read(address);
+                break;
+            case 7:
+                fine_y = (V >> 12) & 0b0111;
+                address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
+                high_tile_byte = ppu_mem_read(address + 8);
+                break;
+            case 0:
+                for (int i = 7; i >= 0; i--) {
+                    address = ((low_tile_byte & (1 << i)) >> i) | ((low_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
+                    tile_data |= address;
+                }
+                break;
+        }
+    } else if (scanline == 241) {
+        PPU_STATUS |= 0b10000000; // set vblank
+    }
     
+    cycle++;
+    
+    //draw_pixel(5, 5, 255, 5, 23);
     if (cycle > 340) {
         cycle = 0;
         scanline++;
