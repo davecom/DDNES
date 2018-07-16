@@ -78,13 +78,13 @@ inline void ppu_step() {
     static uint64_t tile_data = 0;
     static word address = 0; // temp;
     static byte fine_y = 0;
-    
+    uint32_t temp_data = 0;
     // just for debugging
     if (scanline < 240 && cycle < 256) {
         // vblank off
         PPU_STATUS &= 0b01111111;
         // render
-        byte color = (tile_data >> ((7 - X) * 4) & 0x0F);
+        byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
         draw_pixel(cycle, scanline, color);
         // prepare for next render
         tile_data <<= 4;
@@ -110,17 +110,19 @@ inline void ppu_step() {
                 break;
             case 0:
                 for (int i = 7; i >= 0; i--) {
-                    address = ((low_tile_byte & (1 << i)) >> i) | ((low_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
-                    tile_data |= address;
-                    // course X scroll from
-                    // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
-                    if ((V & 0x001F) == 31) { // if coarse X == 31
-                        V &= ~0x001F;         // coarse X = 0
-                        V ^= 0x0400;           // switch horizontal nametable
-                    }
-                    else {
-                        V += 1;                // increment coarse X
-                    }
+                    temp_data <<= 4;
+                    temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
+                }
+                tile_data |= temp_data;
+                // course X scroll from
+                // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+                
+                if ((V & 0x001F) == 31) { // if coarse X == 31
+                    V &= ~0x001F;         // coarse X = 0
+                    V ^= 0x0400;           // switch horizontal nametable
+                }
+                else {
+                    V += 1;                // increment coarse X
                 }
                 break;
         }
