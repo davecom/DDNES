@@ -112,8 +112,34 @@ inline void ppu_step() {
                 for (int i = 7; i >= 0; i--) {
                     address = ((low_tile_byte & (1 << i)) >> i) | ((low_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
                     tile_data |= address;
+                    // course X scroll from
+                    // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+                    if ((V & 0x001F) == 31) { // if coarse X == 31
+                        V &= ~0x001F;         // coarse X = 0
+                        V ^= 0x0400;           // switch horizontal nametable
+                    }
+                    else {
+                        V += 1;                // increment coarse X
+                    }
                 }
                 break;
+        }
+        if (cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+            if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
+                V += 0x1000;                     // increment fine Y
+            } else {
+                V &= ~0x7000;                     // fine Y = 0
+                int y = (V & 0x03E0) >> 5;        // let y = coarse Y
+                if (y == 29) {
+                    y = 0;                          // coarse Y = 0
+                    V ^= 0x0800;                    // switch vertical nametable
+                } else if (y == 31) {
+                    y = 0;                          // coarse Y = 0, nametable not switched
+                } else {
+                    y += 1;                         // increment coarse Y
+                }
+                V = (V & ~0x03E0) | (y << 5);     // put coarse Y back into v
+            }
         }
     } else if (scanline == 241 && cycle == 0) {
         PPU_STATUS |= 0b10000000; // set vblank
