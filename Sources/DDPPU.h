@@ -15,6 +15,7 @@
 #include "DDTypes.h"
 #include "DDROM.h"
 #include "DDUI.h"
+#include "DD6502.h"
 
 #define SPR_RAM_SIZE 256
 #define NAMETABLE_SIZE 2048

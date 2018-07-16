@@ -456,7 +456,7 @@ void cpu_cycle() {
         stall--;
         CPU_TICK(1);
         #ifdef DEBUG
-        printf("Stalling for another %d cycles.", stall);
+        //printf("Stalling for another %d cycles.", stall);
         #endif
         return;
     }
@@ -472,7 +472,7 @@ void cpu_cycle() {
     //printf("%d %.4X\n", info.length, data);
     
     //#ifdef DEBUG
-    debugPrint(info, opcode, data);
+    //debugPrint(info, opcode, data);
     //#endif
     if (cpu_ticks % 1000000 < 7) {
         printf("hit %lld ticks\n", cpu_ticks);
@@ -567,7 +567,7 @@ void cpu_cycle() {
             SP--;
             B = false;
             // set PC to reset vector
-            PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE)) | (((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE) + 1) << 8);
+            PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE)) | (((word)read_memory(IRQ_BRK_VECTOR + 1, ABSOLUTE)) << 8);
             
             jumped = true;
             break;
@@ -965,6 +965,23 @@ static inline word address_for_mode(word data, mem_mode mode) {
 static inline void setZN(byte value) {
     Z = (value == 0);
     N = (((char)value) < 0);
+}
+
+void trigger_NMI() {
+    // push pc to stack
+    ram[(0x0100 | SP)] = (byte)(PC >> 8);
+    SP--;
+    ram[(0x0100 | SP)] = (byte)(PC & 0xFF);
+    SP--;
+    B = true; // http://nesdev.com/the%20'B'%20flag%20&%20BRK%20instruction.txt
+    // push S to stack
+    ram[(0x0100 | SP)] = S;
+    SP--;
+    B = false;
+    I = true;
+    // set PC to NMI vector
+    PC = ((word)read_memory(NMI_VECTOR, ABSOLUTE)) | (((word)read_memory(NMI_VECTOR + 1, ABSOLUTE)) << 8);
+    printf("triggered NMI\n");
 }
 
 #ifdef TEST

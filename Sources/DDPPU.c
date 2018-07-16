@@ -115,8 +115,9 @@ inline void ppu_step() {
                 }
                 break;
         }
-    } else if (scanline == 241) {
+    } else if (scanline == 241 && cycle == 0) {
         PPU_STATUS |= 0b10000000; // set vblank
+        trigger_NMI(); // trigger NMI
     }
     
     cycle++;

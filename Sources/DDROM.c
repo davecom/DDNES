@@ -95,7 +95,7 @@ bool loadROM(const char *filePath) {
         if (amountRead != (rom->header.prgRomSize * CHR_ROM_BASE_UNIT_SIZE)) {
             fprintf(stderr, "File %s doesn't have enough data to fill CHR ROM!\n", filePath);
             fclose(file); // clean up
-            return false;
+            //return false;
         }
     }
     

@@ -47,5 +47,6 @@ static inline byte read_memory(word data, mem_mode mode);
 static inline void write_memory(word data, mem_mode mode, byte value);
 static inline word address_for_mode(word data, mem_mode mode);
 static inline void setZN(byte value);
+void trigger_NMI(void);
 
 #endif /* DD6502_h */
