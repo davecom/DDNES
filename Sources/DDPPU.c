@@ -124,28 +124,31 @@ inline void ppu_step() {
                 }
                 break;
         }
-        if (cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
-            if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
-                V += 0x1000;                     // increment fine Y
-            } else {
-                V &= ~0x7000;                     // fine Y = 0
-                int y = (V & 0x03E0) >> 5;        // let y = coarse Y
-                if (y == 29) {
-                    y = 0;                          // coarse Y = 0
-                    V ^= 0x0800;                    // switch vertical nametable
-                } else if (y == 31) {
-                    y = 0;                          // coarse Y = 0, nametable not switched
-                } else {
-                    y += 1;                         // increment coarse Y
-                }
-                V = (V & ~0x03E0) | (y << 5);     // put coarse Y back into v
-            }
-        }
+        
     } else if (scanline == 241 && cycle == 0) {
         PPU_STATUS |= 0b10000000; // set vblank
         trigger_NMI(); // trigger NMI
     }
-    
+    if (cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+        if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
+            V += 0x1000;                     // increment fine Y
+        } else {
+            V &= ~0x7000;                     // fine Y = 0
+            int y = (V & 0x03E0) >> 5;        // let y = coarse Y
+            if (y == 29) {
+                y = 0;                          // coarse Y = 0
+                V ^= 0x0800;                    // switch vertical nametable
+            } else if (y == 31) {
+                y = 0;                          // coarse Y = 0, nametable not switched
+            } else {
+                y += 1;                         // increment coarse Y
+            }
+            V = (V & ~0x03E0) | (y << 5);     // put coarse Y back into v
+        }
+    } else if (cycle == 257) { // copy X scroll from T to V
+        // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+        V = (V & 0xFBE0) | (T & 0x041F);
+    }
     cycle++;
     
     //draw_pixel(5, 5, 255, 5, 23);
