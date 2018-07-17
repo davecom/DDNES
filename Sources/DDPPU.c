@@ -38,6 +38,8 @@ struct {
 #define BACKGROUND_PATTERN_TABLE_ADDRESS (((((word)PPU_CONTROL1) & 0b00010000) >> 4) * 0x1000)
 
 #define GENERATE_NMI (PPU_CONTROL1 & 0b10000000)
+#define SHOW_BACKGROUND (PPU_CONTROL2 & 0b00001000)
+#define SHOW_SPRITES (PPU_CONTROL2 & 0b00010000)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 byte nametables[NAMETABLE_SIZE]; // nametable ram
@@ -81,93 +83,99 @@ inline void ppu_step() {
     static word address = 0; // temp;
     static byte fine_y = 0;
     uint32_t temp_data = 0;
-    if (scanline < 240 && cycle < 256) {
-        // vblank off
-        PPU_STATUS &= 0b01111111;
-        // render
-        byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
-        draw_pixel(cycle, scanline, color);
-    }
-    if (scanline < 240 && (cycle < 256 || (cycle >= 321 && cycle <= 336))) {
-        
-        // prepare for next render
-        tile_data <<= 4;
-        switch (cycle % 8) {
-            case 1:
-                address = 0x2000 | (V & 0x0FFF);
-                name_table_byte = ppu_mem_read(address);
-                break;
-            case 3:
-                address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
-                shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
-                attribute_table_byte = ((ppu_mem_read(address) >> shift) &
-                                        3) << 2;
-                break;
-            case 5:
-                fine_y = (V >> 12) & 0b0111;
-                address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
-                low_tile_byte = ppu_mem_read(address);
-                break;
-            case 7:
-                fine_y = (V >> 12) & 0b0111;
-                address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
-                high_tile_byte = ppu_mem_read(address + 8);
-                break;
-            case 0:
-                for (int i = 7; i >= 0; i--) {
-                    temp_data <<= 4;
-                    temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
-                }
-                tile_data |= temp_data;
-                if ((cycle >= 321 && cycle <= 336) || cycle <= 256) {
-                    // course X scroll from
-                    // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+    
+    if (1) {//(SHOW_BACKGROUND && SHOW_SPRITES) {
+        if (scanline < 240 && cycle < 256) {
+            // vblank off
+            PPU_STATUS &= 0b01111111;
+            // render
+            byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
+            draw_pixel(cycle, scanline, color);
+        }
+        if (scanline < 240 && (cycle < 256 || (cycle >= 321 && cycle <= 336))) {
+            
+            // prepare for next render
+            tile_data <<= 4;
+            switch (cycle % 8) {
+                case 1:
+                    address = 0x2000 | (V & 0x0FFF);
+                    name_table_byte = ppu_mem_read(address);
+                    break;
+                case 3:
+                    address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
+                    shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
+                    attribute_table_byte = ((ppu_mem_read(address) >> shift) &
+                                            3) << 2;
+                    break;
+                case 5:
+                    fine_y = (V >> 12) & 0b0111;
+                    address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
+                    low_tile_byte = ppu_mem_read(address);
+                    break;
+                case 7:
+                    fine_y = (V >> 12) & 0b0111;
+                    address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
+                    high_tile_byte = ppu_mem_read(address + 8);
+                    break;
+                case 0:
+                    for (int i = 7; i >= 0; i--) {
+                        temp_data <<= 4;
+                        temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
+                    }
+                    tile_data |= temp_data;
+                    if ((cycle >= 321 && cycle <= 336) || cycle <= 256) {
+                        // course X scroll from
+                        // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+                        
+                        if ((V & 0x001F) == 31) { // if coarse X == 31
+                            V &= 0xFFE0;         // coarse X = 0
+                            V ^= 0x0400;           // switch horizontal nametable
+                        }
+                        else {
+                            V += 1;                // increment coarse X
+                        }
+                    }
                     
-                    if ((V & 0x001F) == 31) { // if coarse X == 31
-                        V &= 0xFFE0;         // coarse X = 0
-                        V ^= 0x0400;           // switch horizontal nametable
-                    }
-                    else {
-                        V += 1;                // increment coarse X
-                    }
+                    break;
+            }
+            
+        }
+        if ((scanline < 240 || scanline == 261) && cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+            // increment y
+            if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
+                V += 0x1000;                     // increment fine Y
+            } else {
+                V &= 0x8FFF;                     // fine Y = 0
+                int y = (V & 0x03E0) >> 5;        // let y = coarse Y
+                if (y == 29) {
+                    y = 0;                          // coarse Y = 0
+                    V ^= 0x0800;                    // switch vertical nametable
+                } else if (y == 31) {
+                    y = 0;                          // coarse Y = 0, nametable not switched
+                } else {
+                    y += 1;                         // increment coarse Y
                 }
-                
-                break;
+                V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
+            }
+        }
+        if ((scanline < 240 || scanline == 261) && cycle == 257) { // copy X scroll from T to V
+            // copy x
+            // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+            V = (V & 0xFBE0) | (T & 0x041F);
         }
         
-    } else if (scanline == 241 && cycle == 0) {
+        if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y
+            V = (V & 0x841F) | (T & 0x7BE0);
+        }
+        
+    }
+    
+    if (scanline == 241 && cycle == 0) {
         //frame_ready();
         PPU_STATUS |= 0b10000000; // set vblank
         if (GENERATE_NMI) {
             trigger_NMI(); // trigger NMI
         }
-    }
-    if ((scanline < 240 || scanline == 261) && cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
-        // increment y
-        if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
-            V += 0x1000;                     // increment fine Y
-        } else {
-            V &= 0x8FFF;                     // fine Y = 0
-            int y = (V & 0x03E0) >> 5;        // let y = coarse Y
-            if (y == 29) {
-                y = 0;                          // coarse Y = 0
-                V ^= 0x0800;                    // switch vertical nametable
-            } else if (y == 31) {
-                y = 0;                          // coarse Y = 0, nametable not switched
-            } else {
-                y += 1;                         // increment coarse Y
-            }
-            V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
-        }
-    }
-    if ((scanline < 240 || scanline == 261) && cycle == 257) { // copy X scroll from T to V
-        // copy x
-        // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
-        V = (V & 0xFBE0) | (T & 0x041F);
-    }
-    
-    if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y
-        V = (V & 0x841F) | (T & 0x7BE0);
     }
     
     cycle++;
@@ -187,6 +195,7 @@ void write_ppu_register(word address, byte value) {
     switch(address) {
         case 0x2000:
             PPU_CONTROL1 = value;
+            T = (T & 0xF3FF) | ((((word)value) & 0x03) << 10);
             break;
         case 0x2001:
             PPU_CONTROL2 = value;

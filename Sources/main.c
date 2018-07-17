@@ -21,6 +21,7 @@ extern uint64_t cpu_ticks;
 
 int emulate(void *data) {
     cpu_reset();
+    //ppu_reset();
     while(1) { // run 8992 instructions
         uint64_t last_ticks = cpu_ticks;
         cpu_cycle();
