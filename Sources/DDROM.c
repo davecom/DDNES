@@ -145,6 +145,7 @@ byte readMapper0(word address) {
 
 void writeMapper0(word address, byte value) {
     if (address < 0x2000) {
+        //return;
         rom->chrRom[address] = value;
     } else if (address >= 0x6000 && address < 0x8000) {
         rom->prgRam[address - 0x6000] = value;

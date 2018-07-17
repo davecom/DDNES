@@ -91,7 +91,7 @@ void event_loop() {
         SDL_RenderCopy(renderer, texture, NULL, NULL); // blit texture
         SDL_RenderPresent(renderer);
         
-        SDL_Delay(16);
+        //SDL_Delay(16);
         //printf("end drawing loop");
     }
     ui_cleanup();

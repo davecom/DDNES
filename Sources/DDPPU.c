@@ -81,13 +81,15 @@ inline void ppu_step() {
     static word address = 0; // temp;
     static byte fine_y = 0;
     uint32_t temp_data = 0;
-    // just for debugging
     if (scanline < 240 && cycle < 256) {
         // vblank off
         PPU_STATUS &= 0b01111111;
         // render
         byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
         draw_pixel(cycle, scanline, color);
+    }
+    if (scanline < 240 && (cycle < 256 || (cycle >= 321 && cycle <= 336))) {
+        
         // prepare for next render
         tile_data <<= 4;
         switch (cycle % 8) {
@@ -117,16 +119,19 @@ inline void ppu_step() {
                     temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
                 }
                 tile_data |= temp_data;
-                // course X scroll from
-                // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+                if ((cycle >= 321 && cycle <= 336) || cycle <= 256) {
+                    // course X scroll from
+                    // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+                    
+                    if ((V & 0x001F) == 31) { // if coarse X == 31
+                        V &= 0xFFE0;         // coarse X = 0
+                        V ^= 0x0400;           // switch horizontal nametable
+                    }
+                    else {
+                        V += 1;                // increment coarse X
+                    }
+                }
                 
-                if ((V & 0x001F) == 31) { // if coarse X == 31
-                    V &= 0xFFE0;         // coarse X = 0
-                    V ^= 0x0400;           // switch horizontal nametable
-                }
-                else {
-                    V += 1;                // increment coarse X
-                }
                 break;
         }
         
@@ -137,7 +142,8 @@ inline void ppu_step() {
             trigger_NMI(); // trigger NMI
         }
     }
-    if (cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+    if ((scanline < 240 || scanline == 261) && cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
+        // increment y
         if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
             V += 0x1000;                     // increment fine Y
         } else {
@@ -153,7 +159,9 @@ inline void ppu_step() {
             }
             V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
         }
-    } else if (cycle == 257) { // copy X scroll from T to V
+    }
+    if ((scanline < 240 || scanline == 261) && cycle == 257) { // copy X scroll from T to V
+        // copy x
         // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
         V = (V & 0xFBE0) | (T & 0x041F);
     }
@@ -227,6 +235,7 @@ byte read_ppu_register(word address) {
     byte temporary = buffered;
     switch(address) {
         case 0x2002:
+            W = false;
             return PPU_STATUS;
         case 0x2004:
             return spr_ram[SPR_RAM_ADDRESS];
