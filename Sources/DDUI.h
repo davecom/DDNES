@@ -20,6 +20,7 @@
 #define NES_HEIGHT 240
 
 void event_loop(void);
+void frame_ready(void);
 void display_main_window(const char *title);
 void draw_pixel(int x, int y, byte palette_entry); //Uint8 r, Uint8 g, Uint8 b);
 void ui_cleanup(void);

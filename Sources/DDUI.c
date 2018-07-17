@@ -24,6 +24,8 @@ SDL_Texture *texture;
 //
 //pixel_list * head_pixel = NULL;
 mtx_t pixel_list_mutex;
+mtx_t frame_ready_mutex;
+cnd_t frame_ready_condition;
 uint32_t pixels[(NES_HEIGHT * NES_WIDTH)]; // pixel buffer
 uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x940084FF, 0xA80020FF, 0xA81000FF, 0x881400FF, 0x503000FF, 0x007800FF, 0x006800FF, 0x005800FF, 0x004058FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xBCBCBCFF, 0x0078F8FF, 0x0058F8FF, 0x6844FCFF, 0xD800CCFF, 0xE40058FF, 0xF83800FF, 0xE45C10FF, 0xAC7C00FF, 0x00B800FF, 0x00A800FF, 0x00A844FF, 0x008888FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xF8F8F8FF, 0x3CBCFCFF, 0x6888FCFF, 0x9878F8FF, 0xF878F8FF, 0xF85898FF, 0xF87858FF, 0xFCA044FF, 0xF8B800FF, 0xB8F818FF, 0x58D854FF, 0x58F898FF, 0x00E8D8FF, 0x787878FF, 0x000000FF, 0x000000FF, 0xFCFCFCFF, 0xA4E4FCFF, 0xB8B8F8FF, 0xD8B8F8FF, 0xF8B8F8FF, 0xF8A4C0FF, 0xF0D0B0FF, 0xFCE0A8FF, 0xF8D878FF, 0xD8F878FF, 0xB8F8B8FF, 0xB8F8D8FF, 0x00FCFCFF, 0xF8D8F8FF, 0x000000FF, 0x000000};
 
@@ -54,6 +56,10 @@ uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x94
 //    return temp;
 //}
 
+void frame_ready() {
+    cnd_signal(&frame_ready_condition);
+}
+
 void event_loop() {
     SDL_Event e;
     bool quit = false;
@@ -76,7 +82,7 @@ void event_loop() {
 //            free(pixel); // responsible for freeing
 //            pixel = pop_pixel();
 //        }
-        
+        cnd_wait(&frame_ready_condition, &frame_ready_mutex);
         mtx_lock(&pixel_list_mutex);
         //SDL_SetRenderTarget(renderer, texture);
         SDL_UpdateTexture(texture, NULL, pixels, NES_WIDTH * 4);
@@ -85,7 +91,7 @@ void event_loop() {
         SDL_RenderCopy(renderer, texture, NULL, NULL); // blit texture
         SDL_RenderPresent(renderer);
         
-        SDL_Delay(10);
+        SDL_Delay(1000);
         //printf("end drawing loop");
     }
     ui_cleanup();
@@ -93,6 +99,8 @@ void event_loop() {
 
 void display_main_window(const char *title) {
     mtx_init(&pixel_list_mutex, mtx_plain);
+    mtx_init(&frame_ready_mutex, mtx_plain);
+    cnd_init(&frame_ready_condition);
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
         return;

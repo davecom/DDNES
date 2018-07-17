@@ -31,11 +31,13 @@ struct {
 #define X ppu_registers.x
 #define W ppu_registers.w
 
-#define NAME_TABLE_ADDRESS ((PPU_CONTROL1 & 0b00000011) * 0x400)
+#define NAME_TABLE_ADDRESS ((((word)PPU_CONTROL1) & 0b00000011) * 0x400)
 #define ADDRESS_INCREMENT ((PPU_CONTROL1 & 0b00000100) ? 32 : 1)
 // ignored for 8x16 sprites
-#define SPRITE_PATTERN_TABLE_ADDRESS (((PPU_CONTROL1 & 0b00001000) >> 3) * 0x1000)
-#define BACKGROUND_PATTERN_TABLE_ADDRESS (((PPU_CONTROL1 & 0b00010000) >> 4) * 0x1000)
+#define SPRITE_PATTERN_TABLE_ADDRESS (((((word)PPU_CONTROL1) & 0b00001000) >> 3) * 0x1000)
+#define BACKGROUND_PATTERN_TABLE_ADDRESS (((((word)PPU_CONTROL1) & 0b00010000) >> 4) * 0x1000)
+
+#define GENERATE_NMI (PPU_CONTROL1 & 0b10000000)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 byte nametables[NAMETABLE_SIZE]; // nametable ram
@@ -96,7 +98,8 @@ inline void ppu_step() {
             case 3:
                 address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
                 shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
-                attribute_table_byte = ((ppu_mem_read(address) >> shift) & 3) << 2;
+                attribute_table_byte = ((ppu_mem_read(address) >> shift) &
+                                        3) << 2;
                 break;
             case 5:
                 fine_y = (V >> 12) & 0b0111;
@@ -128,8 +131,11 @@ inline void ppu_step() {
         }
         
     } else if (scanline == 241 && cycle == 0) {
+        frame_ready();
         PPU_STATUS |= 0b10000000; // set vblank
-        trigger_NMI(); // trigger NMI
+        if (GENERATE_NMI) {
+            trigger_NMI(); // trigger NMI
+        }
     }
     if (cycle == 256) { // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
         if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
@@ -200,6 +206,7 @@ void write_ppu_register(word address, byte value) {
             break;
         case 0x2007: // implement writing to vram
             ppu_mem_write(V, value);
+            V += ADDRESS_INCREMENT; // every write to $2007 there is an increment of 1 or 31
             break;
         default:
             fprintf(stderr, "ERROR: Unrecognized PPU register write %X", address);
