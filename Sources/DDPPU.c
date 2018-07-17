@@ -121,7 +121,7 @@ inline void ppu_step() {
                 // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
                 
                 if ((V & 0x001F) == 31) { // if coarse X == 31
-                    V &= ~0x001F;         // coarse X = 0
+                    V &= 0xFFE0;         // coarse X = 0
                     V ^= 0x0400;           // switch horizontal nametable
                 }
                 else {
@@ -131,7 +131,7 @@ inline void ppu_step() {
         }
         
     } else if (scanline == 241 && cycle == 0) {
-        frame_ready();
+        //frame_ready();
         PPU_STATUS |= 0b10000000; // set vblank
         if (GENERATE_NMI) {
             trigger_NMI(); // trigger NMI
@@ -141,7 +141,7 @@ inline void ppu_step() {
         if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
             V += 0x1000;                     // increment fine Y
         } else {
-            V &= ~0x7000;                     // fine Y = 0
+            V &= 0x8FFF;                     // fine Y = 0
             int y = (V & 0x03E0) >> 5;        // let y = coarse Y
             if (y == 29) {
                 y = 0;                          // coarse Y = 0
@@ -151,12 +151,17 @@ inline void ppu_step() {
             } else {
                 y += 1;                         // increment coarse Y
             }
-            V = (V & ~0x03E0) | (y << 5);     // put coarse Y back into v
+            V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
         }
     } else if (cycle == 257) { // copy X scroll from T to V
         // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
         V = (V & 0xFBE0) | (T & 0x041F);
     }
+    
+    if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y
+        V = (V & 0x841F) | (T & 0x7BE0);
+    }
+    
     cycle++;
     
     //draw_pixel(5, 5, 255, 5, 23);
@@ -189,20 +194,22 @@ void write_ppu_register(word address, byte value) {
             if (!W) { // first write
                 T = (T & 0b1111111111100000) | (value >> 3);
                 X = (value & 0b00000111);
+                W = true;
             } else { // second write
                 T = (T & 0b1000111111111111) | (((word)value & 0b00000111) << 12);
                 T = (T & 0b1111110000011111) | (((word)value & 0b11111000) << 2);
+                W = false;
             }
-            W = !W;
             break;
         case 0x2006: // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             if (!W) { // first write
                 T = (T & 0b0000000011111111) | (((word)value & 0b00111111) << 8);
+                W = true;
             } else { // second write
                 T = (T & 0b1111111100000000) | value;
                 V = T;
+                W = false;
             }
-            W = !W;
             break;
         case 0x2007: // implement writing to vram
             ppu_mem_write(V, value);
@@ -215,13 +222,24 @@ void write_ppu_register(word address, byte value) {
 }
 
 byte read_ppu_register(word address) {
+    static byte buffered = 0;
+    static byte value = 0;
+    byte temporary = buffered;
     switch(address) {
         case 0x2002:
             return PPU_STATUS;
         case 0x2004:
             return spr_ram[SPR_RAM_ADDRESS];
         case 0x2007: // implement writing to vram
-            return ppu_mem_read(V);
+            value = ppu_mem_read(V);
+            if (V % 0x4000 < 0x3F00) {
+                buffered = value;
+                value = temporary;
+            } else {
+                buffered = ppu_mem_read(V - 0x1000);
+            }
+            V += ADDRESS_INCREMENT; // every read to $2007 there is an increment of 1 or 31
+            return value;
         default:
             fprintf(stderr, "ERROR: Unrecognized PPU register read %X", address);
             return 0;

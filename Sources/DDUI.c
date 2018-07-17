@@ -82,7 +82,7 @@ void event_loop() {
 //            free(pixel); // responsible for freeing
 //            pixel = pop_pixel();
 //        }
-        cnd_wait(&frame_ready_condition, &frame_ready_mutex);
+        //cnd_wait(&frame_ready_condition, &frame_ready_mutex);
         mtx_lock(&pixel_list_mutex);
         //SDL_SetRenderTarget(renderer, texture);
         SDL_UpdateTexture(texture, NULL, pixels, NES_WIDTH * 4);
@@ -91,7 +91,7 @@ void event_loop() {
         SDL_RenderCopy(renderer, texture, NULL, NULL); // blit texture
         SDL_RenderPresent(renderer);
         
-        SDL_Delay(1000);
+        SDL_Delay(16);
         //printf("end drawing loop");
     }
     ui_cleanup();
