@@ -475,6 +475,9 @@ void cpu_cycle() {
     
     //#ifdef DEBUG
     debugPrint(info, opcode, data);
+    if (instruction_count == 3350) {
+        instruction_count = instruction_count;
+    }
     //#endif
 //    if (cpu_ticks % 1000000 < 7) {
 //        printf("hit %lld ticks\n", cpu_ticks);
@@ -845,6 +848,7 @@ void cpu_cycle() {
             setZN(A);
             break;
         default:
+            printf("Unimplemented opcode!");
             break;
     }
     
@@ -933,22 +937,26 @@ static inline word address_for_mode(word data, mem_mode mode) {
             break;
         case INDEXED_INDIRECT:
         {
-            word ls = (word) ram[(data + X)];
-            word ms = (word) ram[(data + X) + 1];
+            word ls = (word) ram[((data + X) & 0xFF)]; // 0xFF for zero-page wrapping
+            word ms = (word) ram[((data + X + 1) & 0xFF)]; // 0xFF for zero-page wrapping
             address = (ms << 8) | ls;
             break;
         }
         case INDIRECT:
         {
+            //word origin = data
             word ls = (word) ram[data];
-            word ms = (word) ram[data + 1];
+            word ms = (word) ram[(data + 1)];
+            if (((data) & 0xFF) == 0xFF) {
+                ms = ram[data & 0xFF00];
+            }
             address = (ms << 8) | ls;
             break;
         }
         case INDIRECT_INDEXED:
         {
-            word ls = (word) ram[data];
-            word ms = (word) ram[data + 1];
+            word ls = (word) ram[data & 0xFF]; // 0xFF for zero-page wrapping
+            word ms = (word) ram[(data + 1) & 0xFF]; // 0xFF for zero-page wrapping
             address = (ms << 8) | ls;
             address += Y;
             page_crossed = DIFFERENT_PAGES(address, (address - Y));
