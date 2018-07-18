@@ -447,8 +447,10 @@ void cpu_reset() {
     flags.n = false;
 }
 
+uint64_t instruction_count = 0;
+
 void debugPrint(instruction_info info, byte opcode, word data) {
-    printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X %llu\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP, cpu_ticks);
+    printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X %lld\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP, instruction_count);
 }
 
 void cpu_cycle() {
@@ -460,7 +462,7 @@ void cpu_cycle() {
         #endif
         return;
     }
-    
+    instruction_count++;
     byte opcode = read_memory(PC, ABSOLUTE);
     page_crossed = false;
     bool jumped = false;
@@ -732,8 +734,9 @@ void cpu_cycle() {
         case ROL: // rotate one bit left
         {
             byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            byte old_c = C;
             C = (src >> 7) & 1; // carry is set to 7th bit
-            src = ((src << 1) | C);
+            src = ((src << 1) | old_c);
             setZN(src);
             if (info.mode == ACCUMULATOR) {
                 A = src;
@@ -745,8 +748,9 @@ void cpu_cycle() {
         case ROR: // rotate one bit right
         {
             byte src = info.mode == ACCUMULATOR ? A : read_memory(data, info.mode);
+            byte old_c = C;
             C = (src & 1); // carry is set to 0th bit
-            src = ((src >> 1) | (C << 7));
+            src = ((src >> 1) | (old_c << 7));
             setZN(src);
             if (info.mode == ACCUMULATOR) {
                 A = src;
@@ -819,21 +823,26 @@ void cpu_cycle() {
             break;
         case TAX: // transfer a to x
             X = A;
+            setZN(X);
             break;
         case TAY: // transfer a to y
             Y = A;
+            setZN(Y);
             break;
         case TSX: // transfer stack pointer to x
             X = SP;
+            setZN(X);
             break;
         case TXS: // transfer x to stack pointer
             SP = X;
             break;
         case TXA: // transfer x to a
             A = X;
+            setZN(A);
             break;
         case TYA: // transfer y to a
             A = Y;
+            setZN(A);
             break;
         default:
             break;
@@ -926,21 +935,21 @@ static inline word address_for_mode(word data, mem_mode mode) {
         {
             word ls = (word) ram[(data + X)];
             word ms = (word) ram[(data + X) + 1];
-            address = (ms << 8) & ls;
+            address = (ms << 8) | ls;
             break;
         }
         case INDIRECT:
         {
             word ls = (word) ram[data];
             word ms = (word) ram[data + 1];
-            address = (ms << 8) & ls;
+            address = (ms << 8) | ls;
             break;
         }
         case INDIRECT_INDEXED:
         {
             word ls = (word) ram[data];
             word ms = (word) ram[data + 1];
-            address = (ms << 8) & ls;
+            address = (ms << 8) | ls;
             address += Y;
             page_crossed = DIFFERENT_PAGES(address, (address - Y));
             break;

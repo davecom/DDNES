@@ -9,7 +9,7 @@
 #ifndef DDTypes_h
 #define DDTypes_h
 
-#define TEST
+//#define TEST
 
 typedef uint8_t byte;
 typedef uint16_t word;

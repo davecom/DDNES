@@ -5,7 +5,7 @@
 //  Created by David Kopec on 2/10/17.
 //  Copyright © 2017 David Kopec. All rights reserved.
 //
-//#ifdef TESTY // if we're testing run the tests
+#ifdef TEST // if we're testing run the tests
 #include "DDTest.h"
 #include "DD6502.h"
 #include "DDROM.h"
@@ -61,4 +61,4 @@ void test() {
     
     printf("Passed %d of %d attempted tests.\n", successful, attempted);
 }
-//#endif
+#endif
