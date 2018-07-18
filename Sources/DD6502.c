@@ -791,10 +791,11 @@ void cpu_cycle() {
         {
             byte src = read_memory(data, info.mode);
             //unsigned int uiresult = (unsigned int)(src - A - C);
-            int siresult = (int)((char)src - (char)A - (char)C);
-            A -= (src - (C - 1));
-            C = (siresult < 0); // set carry
-            V = (siresult > 127 || siresult < -128);  // set overflow
+            //int siresult = (int)((signed int)src - (signed int)A - (signed int)(1 - C));
+            byte result = A - (src - (C - 1));
+            C = result < A; // set carry
+            V = (((A ^ src) & 0x80) != 0 && ((A ^ result) & 0x80) != 0);  // set overflow
+            A = result;
             setZN(A);
             break;
         }
