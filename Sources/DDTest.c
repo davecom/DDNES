@@ -5,7 +5,7 @@
 //  Created by David Kopec on 2/10/17.
 //  Copyright © 2017 David Kopec. All rights reserved.
 //
-#ifdef TEST // if we're testing run the tests
+//#ifdef TESTY // if we're testing run the tests
 #include "DDTest.h"
 #include "DD6502.h"
 #include "DDROM.h"
@@ -27,7 +27,7 @@ bool CPUTest2() {
     if (!loadROM("TestROMs/nestest.nes")) { // load the rom
         return false;
     }
-    printf("Mapper %d\n", rom->mapper);
+    //printf("Mapper %d\n", rom->mapper);
     cpu_reset();
     PC_Move(0xC000); // for automated testing
     for (int i = 0; i < 8992; i++) { // run 8992 instructions
@@ -42,12 +42,12 @@ void test() {
     int successful = 0;
     
     // CPU TEST 1
-    attempted++;
-    if (!CPUTest1()) {
-        printf("CPUTest 1 Failed!\n");
-    } else {
-        successful++;
-    }
+//    attempted++;
+//    if (!CPUTest1()) {
+//        printf("CPUTest 1 Failed!\n");
+//    } else {
+//        successful++;
+//    }
     
     // CPU TEST 2
     attempted++;
@@ -61,4 +61,4 @@ void test() {
     
     printf("Passed %d of %d attempted tests.\n", successful, attempted);
 }
-#endif
+//#endif

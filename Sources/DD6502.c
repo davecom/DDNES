@@ -474,9 +474,9 @@ void cpu_cycle() {
     //#ifdef DEBUG
     debugPrint(info, opcode, data);
     //#endif
-    if (cpu_ticks % 1000000 < 7) {
-        printf("hit %lld ticks\n", cpu_ticks);
-    }
+//    if (cpu_ticks % 1000000 < 7) {
+//        printf("hit %lld ticks\n", cpu_ticks);
+//    }
     
     switch (info.instruction) {
         case ADC: // add memory to accumulator with carry
@@ -790,10 +790,10 @@ void cpu_cycle() {
         case SBC: // subtract with carry
         {
             byte src = read_memory(data, info.mode);
-            unsigned int uiresult = (unsigned int)(src - A - C);
+            //unsigned int uiresult = (unsigned int)(src - A - C);
             int siresult = (int)((char)src - (char)A - (char)C);
-            A -= (src - C);
-            C = (uiresult > 0xFF); // set carry
+            A -= (src - (C - 1));
+            C = (siresult < 0); // set carry
             V = (siresult > 127 || siresult < -128);  // set overflow
             setZN(A);
             break;

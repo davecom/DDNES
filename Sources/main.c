@@ -30,7 +30,7 @@ int emulate(void *data) {
             ppu_step();
         }
     }
-    unloadROM();
+    //unloadROM();
     return 0;
 }
 
