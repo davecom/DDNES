@@ -98,7 +98,7 @@ inline void ppu_step() {
             tile_data <<= 4;
             switch (cycle % 8) {
                 case 1:
-                    address = 0x2000 | (V & 0x0FFF);
+                    address = (0x2000 + NAME_TABLE_ADDRESS) | (V & 0x0FFF);
                     //printf("nt address is %x\n", address);
                     name_table_byte = ppu_mem_read(address);
                     break;
