@@ -122,6 +122,7 @@ void display_main_window(const char *title) {
 }
 
 void draw_pixel(int x, int y, byte palette_entry) {
+    //printf("%d\n", palette_entry);
     mtx_lock(&pixel_list_mutex);
     pixels[(x + y * NES_WIDTH)] = nes_palette[palette_entry];
     mtx_unlock(&pixel_list_mutex);
