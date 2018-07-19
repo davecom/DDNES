@@ -5,6 +5,10 @@ This is a personal learning project for me that I don't expect to be especially 
 
 This will never be anything impressive, and it's not code I'm proud of... it's more of a hack as I have time. If you want to look at good code, please checkout Michael's project. I just plan to get Donkey Kong working and call it a day. I've learned a lot about the 6502 and NES architecture already and when I get Donkey Kong playing decently I will have achieved my learning objectives for this project.
 
+## Building
+
+If for some very strange reason you wanted to build this code for this non-working emulator, it comes bundled as a project for Xcode 9 w/ SDL included in this repository. Although the code is technically probably cross-platform there are no build scripts beyond the Xcode project.
+
 ## License
 
 Licensed under the [Apache License](LICENSE).
