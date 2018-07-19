@@ -83,8 +83,8 @@ inline void ppu_step() {
     static word address = 0; // temp;
     static byte fine_y = 0;
     uint32_t temp_data = 0;
-    printf("scanline %d cycle %d V %x\n", scanline, cycle, V);
-    if (1) {//(SHOW_BACKGROUND && SHOW_SPRITES) {
+    //printf("scanline %d cycle %d V %x\n", scanline, cycle, V);
+    if (SHOW_BACKGROUND && SHOW_SPRITES) {
         if (scanline < 240 && cycle < 256) {
             // vblank off
             PPU_STATUS &= 0b01111111;
@@ -99,29 +99,29 @@ inline void ppu_step() {
             switch (cycle % 8) {
                 case 1:
                     address = 0x2000 | (V & 0x0FFF);
-                    printf("nt address is %x\n", address);
+                    //printf("nt address is %x\n", address);
                     name_table_byte = ppu_mem_read(address);
                     break;
                 case 3:
                     address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
                     shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
-                    printf("at address is %x\n", address);
+                    //printf("at address is %x\n", address);
                     attribute_table_byte = ((ppu_mem_read(address) >> shift) &
                                             3) << 2;
                     break;
                 case 5:
                     fine_y = (V >> 12) & 7;
-                    printf("background pattern table address is %x\n", BACKGROUND_PATTERN_TABLE_ADDRESS);
-                    printf("name_table_byte is %x\n", name_table_byte);
-                    printf("fine_y is %x\n", fine_y);
+                    //printf("background pattern table address is %x\n", BACKGROUND_PATTERN_TABLE_ADDRESS);
+                    //printf("name_table_byte is %x\n", name_table_byte);
+                    //printf("fine_y is %x\n", fine_y);
                     address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
-                    printf("ltb address is %x\n", address);
+                    //printf("ltb address is %x\n", address);
                     low_tile_byte = ppu_mem_read(address);
                     break;
                 case 7:
                     fine_y = (V >> 12) & 7;
                     address = BACKGROUND_PATTERN_TABLE_ADDRESS + ((word)name_table_byte) * 16 + fine_y;
-                    printf("htb address is %x\n", address + 8);
+                    //printf("htb address is %x\n", address + 8);
                     high_tile_byte = ppu_mem_read(address + 8);
                     break;
                 case 0:
@@ -227,19 +227,19 @@ void write_ppu_register(word address, byte value) {
             break;
         case 0x2006: // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             if (!W) { // first write
-                T = (T & 0b0000000011111111) | (((word)value & 0b00111111) << 8);
+                T = (T & 0b1000000011111111) | ((((word)value) & 0b00111111) << 8);
                 W = true;
             } else { // second write
-                T = (T & 0b1111111100000000) | value;
+                T = (T & 0b1111111100000000) | (word)value;
                 V = T;
                 W = false;
             }
             break;
         case 0x2007: // implement writing to vram
-            printf("V is %x before writing\n", V);
+            //printf("V is %x before writing\n", V);
             ppu_mem_write(V, value);
             V += ADDRESS_INCREMENT; // every write to $2007 there is an increment of 1 or 31
-            printf("V is %x after writing\n", V);
+            //printf("V is %x after writing\n", V);
             break;
         default:
             fprintf(stderr, "ERROR: Unrecognized PPU register write %X", address);
