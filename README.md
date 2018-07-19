@@ -7,7 +7,7 @@ This will never be anything impressive, and it's not code I'm proud of... it's m
 
 ## Building
 
-If for some very strange reason you wanted to build this code for this non-working emulator, it comes bundled as a project for Xcode 9 w/ SDL included in this repository. Although the code is technically probably cross-platform there are no build scripts beyond the Xcode project.
+If for some very strange reason you wanted to build this code for this non-working emulator, it comes bundled as a project for Xcode 9 w/ SDL included in this repository. Although the code is technically probably cross-platform there are no build scripts beyond the Xcode project. It takes the file containing the game to play as the single command-line argument, which is specified in Xcode's Scheme configuration window. Right now only Mapper 0 is implemented.
 
 ## License
 
