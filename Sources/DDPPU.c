@@ -86,8 +86,7 @@ inline void ppu_step() {
     //printf("scanline %d cycle %d V %x\n", scanline, cycle, V);
     if (SHOW_BACKGROUND && SHOW_SPRITES) {
         if (scanline < 240 && cycle < 256) {
-            // vblank off
-            PPU_STATUS &= 0b01111111;
+            
             // render
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
             draw_pixel(cycle, scanline, color);
@@ -97,17 +96,17 @@ inline void ppu_step() {
             // prepare for next render
             tile_data <<= 4;
             switch (cycle % 8) {
-                case 1:
+                case 1: // fetch name table byte (2 cycles)
                     address = (0x2000 + NAME_TABLE_ADDRESS) | (V & 0x0FFF);
                     //printf("nt address is %x\n", address);
                     name_table_byte = ppu_mem_read(address);
                     break;
-                case 3:
+                case 3: // fetch attribute table byte (2 cycles)
                     address = 0x23C0 | (V & 0x0C00) | ((V >> 4) & 0x38) | ((V >> 2) & 0x07);
                     shift = ((V >> 4) & 4) | (V & 2); //? from Fogleman need to investigate more
                     //printf("at address is %x\n", address);
                     attribute_table_byte = ((ppu_mem_read(address) >> shift) &
-                                            3) << 2;
+                                            3) << 2; // this is upper 2 bits for all 8 pixels, so move into place for every pixel ahead of time
                     break;
                 case 5:
                     fine_y = (V >> 12) & 7;
@@ -127,11 +126,11 @@ inline void ppu_step() {
                 case 0:
                     for (int i = 7; i >= 0; i--) {
                         temp_data <<= 4;
-                        temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | attribute_table_byte;
+                        temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | (attribute_table_byte );
                     }
                     tile_data |= temp_data;
                     if ((cycle >= 321 && cycle <= 336) || cycle <= 256) {
-                        // course X scroll from
+                        // coarse X scroll from
                         // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
                         
                         if ((V & 0x001F) == 31) { // if coarse X == 31
@@ -183,6 +182,10 @@ inline void ppu_step() {
         if (GENERATE_NMI) {
             trigger_NMI(); // trigger NMI
         }
+    }
+    
+    if (scanline == 261 && cycle == 1) {
+        PPU_STATUS &= 0b01111111; // vblank off
     }
     
     cycle++;
