@@ -92,7 +92,7 @@ inline void ppu_step() {
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
             draw_pixel(cycle, scanline, color);
         }
-        if (scanline < 240 && (cycle < 256 || (cycle >= 321 && cycle <= 336))) {
+        if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {
             
             // prepare for next render
             tile_data <<= 4;
