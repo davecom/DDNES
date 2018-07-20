@@ -126,7 +126,14 @@ inline void ppu_step() {
                 case 0:
                     for (int i = 7; i >= 0; i--) {
                         temp_data <<= 4;
-                        temp_data |= ((low_tile_byte & (1 << i)) >> i) | ((high_tile_byte & (1 << i)) >> (i - 1)) | (attribute_table_byte );
+                        
+                        temp_data |= ((low_tile_byte & (1 << i)) >> i);
+                        if (i > 0) {
+                            temp_data |= ((high_tile_byte & (1 << i)) >> (i - 1));
+                        } else {
+                            temp_data |= ((high_tile_byte & (1 << i)) << 1);
+                        }
+                        temp_data |= attribute_table_byte;
                     }
                     tile_data |= temp_data;
                     if ((cycle >= 321 && cycle <= 336) || cycle <= 256) {
