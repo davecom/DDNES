@@ -63,6 +63,36 @@ void ppu_reset() {
     W = false;
 }
 
+// try drawing sprites in a quick and dirty way...
+// once per scanline; maybe it won't work
+// assume 8 x 8 sprites for now
+static void draw_sprites(int scanline) {
+    for (int i = 0; i < SPR_RAM_SIZE; i += 4) {
+        byte y_position = spr_ram[i];
+        if (y_position == 0xFF) {
+            continue; // 0xFF is marker for no sprite data
+        }
+        //printf("%d", spr_ram[i]);
+        byte sprite_line = scanline - y_position; // where vertically in the sprite are we
+        if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
+            byte index = spr_ram[i + 1];
+            word bit0sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line;
+            word bit1sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line + 8;
+            byte bit0s = ppu_mem_read(bit0sAddress);
+            byte bit1s = ppu_mem_read(bit1sAddress);
+            byte bit2and3 = spr_ram[i + 2] & 3;
+            // draw the 8 pixels on this scanline
+            for (int x = 0; x < 8; x++) {
+                byte color = (bit2and3 << 2) | (((bit1s >> x) & 1) << 1) | ((bit0s >> x) & 1);
+                if (color == 0) {
+                    continue; // ignore transparent colors
+                }
+                draw_pixel(spr_ram[i + 3] + x, y_position + sprite_line, color);
+            }
+        }
+    }
+}
+
 
 
 //// just for debugging
@@ -170,6 +200,7 @@ inline void ppu_step() {
                 }
                 V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
             }
+            
         }
         if ((scanline < 240 || scanline == 261) && cycle == 257) { // copy X scroll from T to V
             // copy x
@@ -197,9 +228,9 @@ inline void ppu_step() {
     
     cycle++;
     
-    //draw_pixel(5, 5, 255, 5, 23);
     if (cycle > 340) {
         cycle = 0;
+        draw_sprites(scanline);
         scanline++;
         if (scanline > 261) {
             scanline = 0;
@@ -318,5 +349,5 @@ static inline void ppu_mem_write(word address, byte value) {
 // started from write to $4014
 // fill spr_ram starting from cpuMemLocation
 void dma_transfer(byte *cpuMemLocation) {
-    memcpy(cpuMemLocation, spr_ram, SPR_RAM_SIZE);
+    memcpy(spr_ram, cpuMemLocation, SPR_RAM_SIZE);
 }
