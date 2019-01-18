@@ -90,10 +90,11 @@ static void draw_sprites(int scanline) {
             for (int x = 0; x < 8; x++) {
                 
                 byte color = (bit2and3 << 2) | (((bit1s >> x) & 1) << 0) | (((bit0s >> x) & 1) << 1);
+                color = palette[color]; // pull from palette memory
                 if (color == 0) {
                     continue; // ignore transparent colors
                 }
-                draw_pixel(spr_ram[i + 3] + (flip_x ? 7 - x : x), y_position + sprite_line, color);
+                draw_pixel(spr_ram[i + 3] + (flip_x ? x : 7 -x), y_position + sprite_line, color);
             }
         }
     }
