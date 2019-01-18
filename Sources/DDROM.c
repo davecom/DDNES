@@ -94,13 +94,13 @@ bool loadROM(const char *filePath) {
         amountRead = fread(rom->chrRom, 1, rom->header.prgRomSize * CHR_ROM_BASE_UNIT_SIZE, file);
         if (amountRead != (rom->header.prgRomSize * CHR_ROM_BASE_UNIT_SIZE)) {
             fprintf(stderr, "File %s doesn't have enough data to fill CHR ROM!\n", filePath);
-            fclose(file); // clean up
+            //fclose(file); // clean up
             //return false;
         }
     }
     
     // get mapper version
-    rom->mapper = (rom->header.flags6 & 0xF0 >> 4) | (rom->header.flags7 & 0xF0);
+    rom->mapper = ((rom->header.flags6 & 0xF0) >> 4) | (rom->header.flags7 & 0xF0);
     // setup mapper read/write methods
     rom->readCartridge = mapperReaders[rom->mapper];
     rom->writeCartridge = mapperWriters[rom->mapper];
@@ -130,7 +130,12 @@ byte readMapper0(word address) {
     if (address < 0x2000) {
         return rom->chrRom[address];
     } else if (address >= 0x6000 && address < 0x8000) {
-        return rom->prgRam[address - 0x6000];
+        if (rom->batteryBackedRAM) {
+            return rom->prgRam[address - 0x6000];
+        } else {
+            printf("Tried reading from battery backed RAM at %x, but there is none", address);
+            return 0;
+        }
     } else if (address > 0x8000) {
         if (rom->header.prgRomSize > 1) {
             return rom->prgRom[address - 0x8000];
@@ -148,7 +153,12 @@ void writeMapper0(word address, byte value) {
         return; // for mapper 0, treat writing to CHR as a no-op
         //rom->chrRom[address] = value;
     } else if (address >= 0x6000 && address < 0x8000) {
-        rom->prgRam[address - 0x6000] = value;
+        if (rom->batteryBackedRAM) {
+            rom->prgRam[address - 0x6000] = value;
+        } else {
+            printf("Tried writing %c at battery backed RAM at %x, but there is none", value, address);
+        }
+        
     } else {
         fprintf(stderr, "Tried to write to cartridge at invalid address %.4X!\n", address);
     }

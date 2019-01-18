@@ -474,7 +474,7 @@ void cpu_cycle() {
     //printf("%d %.4X\n", info.length, data);
     
     //#ifdef DEBUG
-//    debugPrint(info, opcode, data);
+    //debugPrint(info, opcode, data);
 //    if (instruction_count == 3350) {
 //        instruction_count = instruction_count;
 //    }
@@ -487,11 +487,10 @@ void cpu_cycle() {
         case ADC: // add memory to accumulator with carry
         {
             byte src = read_memory(data, info.mode);
-            unsigned int uiresult = (unsigned int)(src + A + C);
-            int siresult = (int)((char)src + (char)A + (char)C);
-            A += (src + C);
-            C = (uiresult > 0xFF); // set carry
-            V = ((siresult > 127) || (siresult < -128));  // set overflow
+            int siresult = ((int)src) + ((int)A) + ((int)C);
+            V = !!(~(A ^ src) & (A ^ siresult) & 0x80);  // set overflow
+            A = A + src + C;
+            C = (siresult > 0xFF); // set carry
             setZN(A);
             break;
         }
@@ -797,12 +796,10 @@ void cpu_cycle() {
         case SBC: // subtract with carry
         {
             byte src = read_memory(data, info.mode);
-            //unsigned int uiresult = (unsigned int)(src - A - C);
-            //int siresult = (int)((signed int)src - (signed int)A - (signed int)(1 - C));
-            byte result = A - (src - (C - 1));
-            C = result < A; // set carry
-            V = (((A ^ src) & 0x80) != 0 && ((A ^ result) & 0x80) != 0);  // set overflow
-            A = result;
+            int siresult = (int)A - (int)src - (int)(1 - C);
+            V = !!((A ^ src) & (A ^ siresult) & 0x80);  // set overflow
+            A = A - src - (1 - C);
+            C = !(siresult < 0); // set carry
             setZN(A);
             break;
         }

@@ -73,7 +73,11 @@ static void draw_sprites(int scanline) {
             continue; // 0xFF is marker for no sprite data
         }
         //printf("%d", spr_ram[i]);
+        bool flip_y = (spr_ram[i + 2] >> 7) & 1;
         byte sprite_line = scanline - y_position; // where vertically in the sprite are we
+        if (flip_y) {
+            sprite_line = 7 - sprite_line;
+        }
         if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
             byte index = spr_ram[i + 1];
             word bit0sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line;
@@ -82,12 +86,14 @@ static void draw_sprites(int scanline) {
             byte bit1s = ppu_mem_read(bit1sAddress);
             byte bit2and3 = spr_ram[i + 2] & 3;
             // draw the 8 pixels on this scanline
+            bool flip_x = (spr_ram[i + 2] >> 6) & 1;
             for (int x = 0; x < 8; x++) {
-                byte color = (bit2and3 << 2) | (((bit1s >> x) & 1) << 1) | ((bit0s >> x) & 1);
+                
+                byte color = (bit2and3 << 2) | (((bit1s >> x) & 1) << 0) | (((bit0s >> x) & 1) << 1);
                 if (color == 0) {
                     continue; // ignore transparent colors
                 }
-                draw_pixel(spr_ram[i + 3] + x, y_position + sprite_line, color);
+                draw_pixel(spr_ram[i + 3] + (flip_x ? 7 - x : x), y_position + sprite_line, color);
             }
         }
     }
@@ -206,6 +212,7 @@ inline void ppu_step() {
             // copy x
             // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             V = (V & 0xFBE0) | (T & 0x041F);
+            draw_sprites(scanline);
         }
         
         if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y
@@ -215,6 +222,7 @@ inline void ppu_step() {
     }
     
     if (scanline == 241 && cycle == 0) {
+        
         //frame_ready();
         PPU_STATUS |= 0b10000000; // set vblank
         if (GENERATE_NMI) {
@@ -226,11 +234,13 @@ inline void ppu_step() {
         PPU_STATUS &= 0b01111111; // vblank off
     }
     
+
+    
     cycle++;
     
     if (cycle > 340) {
         cycle = 0;
-        draw_sprites(scanline);
+        
         scanline++;
         if (scanline > 261) {
             scanline = 0;
