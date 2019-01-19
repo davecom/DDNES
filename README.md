@@ -25,7 +25,8 @@ Michael Fogleman's emulator that this is partially a port of (especially parts o
 - [ ] APU (Audio Processing Unit)... maybe... eh would be pretty happy with the above
 
 ## Useful Links
-- [Michael Fogleman's Go NES Emulator](https://github.com/fogleman/nes)
+- [Michael Fogleman's Go NES Emulator](https://github.com/fogleman/nes) - the background rendering of the PPU is largely a port of his code from Go to C along with some bits from nesdev forums
+- [Stanislav Yaglo's mynes](https://github.com/yaglo/mynes) - I looked at some of his code when I ran into bugs in my ADC & SBC instructions' overflow flag setting as well as some sprite rendering bugs
 - [nesdev.com](https://www.nesdev.com/)
 - [Nintaco](http://nintaco.com) - one of the only NES emulators with a good debugger that runs on macOS (Java)
 - [Maciform](https://github.com/macifom/macifom) - an NES emulator with a very basic debugger written in Objective-C that you can build for the Mac natively (at least as of 10.13, although builds you'll find online don't work; you need to build it yourself)

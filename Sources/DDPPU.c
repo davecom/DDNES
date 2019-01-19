@@ -84,19 +84,16 @@ static void draw_sprites(int scanline) {
             word bit1sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line + 8;
             byte bit0s = ppu_mem_read(bit0sAddress);
             byte bit1s = ppu_mem_read(bit1sAddress);
-            byte bit3and2 = (spr_ram[i + 2]) & 3 << 2;
+            byte bit3and2 = ((spr_ram[i + 2]) & 3) << 2;
             // draw the 8 pixels on this scanline
             bool flip_x = (spr_ram[i + 2] >> 6) & 1;
             for (int x = 0; x < 8; x++) {
-                byte bit1and0 = (((bit1s >> x) & 1) << 0) | (((bit0s >> x) & 1) << 1);
+                byte bit1and0 = (((bit1s >> x) & 1) << 1) | (((bit0s >> x) & 1) << 0);
                 if (bit1and0 == 0) {
                     continue;
                 }
                 byte color = bit3and2 | bit1and0;
-                color = palette[color]; // pull from palette memory
-                if (color == 0) {
-                    continue; // ignore transparent colors
-                }
+                color = ppu_mem_read(0x3F10 + color); // pull from palette memory
                 draw_pixel(spr_ram[i + 3] + (flip_x ? x : 7 -x), y_position + sprite_line, color);
             }
         }
