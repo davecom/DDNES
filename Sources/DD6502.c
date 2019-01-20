@@ -872,6 +872,9 @@ static inline byte read_memory(word data, mem_mode mode) {
         word temp = ((address % 8) | 0x2000); // get data from ppu register
         return read_ppu_register(temp);
     } else if (address <= 0x4017) { // APU and IO
+        if (address == 0x4016) { // byte representing configuration of first joypad        
+            return JOYPAD1;
+        }
         return 0; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO
         return 0;

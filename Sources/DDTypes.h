@@ -9,6 +9,8 @@
 #ifndef DDTypes_h
 #define DDTypes_h
 
+#include <stdint.h>
+
 //#define TEST
 
 typedef uint8_t byte;

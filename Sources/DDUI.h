@@ -15,6 +15,7 @@
 #include <SDL2/SDL.h>
 #include "c11threads.h"
 #include "DDTypes.h"
+#include "DDInput.h"
 
 #define NES_WIDTH 256
 #define NES_HEIGHT 240

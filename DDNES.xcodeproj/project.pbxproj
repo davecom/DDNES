@@ -16,6 +16,7 @@
 		556FCF031E4D944000731450 /* TestROMs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 556FCF021E4D929100731450 /* TestROMs */; };
 		558AC0811E3AC50D00B786DE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0801E3AC50D00B786DE /* main.c */; };
 		558AC0841E3B078800B786DE /* DD6502.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0821E3B078800B786DE /* DD6502.c */; };
+		55ECC5EA21F2FC85000A0976 /* DDInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 55ECC5E921F2FC85000A0976 /* DDInput.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +50,8 @@
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
 		558AC0831E3B078800B786DE /* DD6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DD6502.h; path = Sources/DD6502.h; sourceTree = "<group>"; };
 		55CD01A51E50D71200D4C7AB /* DDTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTypes.h; path = Sources/DDTypes.h; sourceTree = "<group>"; };
+		55ECC5E821F2FC85000A0976 /* DDInput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDInput.h; sourceTree = "<group>"; };
+		55ECC5E921F2FC85000A0976 /* DDInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = DDInput.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,8 @@
 				556FCF001E4D8EAC00731450 /* DDTest.h */,
 				550C12EC20F5B44800D28246 /* DDUI.c */,
 				550C12EB20F5B44800D28246 /* DDUI.h */,
+				55ECC5E921F2FC85000A0976 /* DDInput.c */,
+				55ECC5E821F2FC85000A0976 /* DDInput.h */,
 				556FCF021E4D929100731450 /* TestROMs */,
 				558AC0751E3AC42200B786DE /* Products */,
 				553232781F9F03EE0068AC4D /* Frameworks */,
@@ -160,6 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */,
+				55ECC5EA21F2FC85000A0976 /* DDInput.c in Sources */,
 				550C12ED20F5B44800D28246 /* DDUI.c in Sources */,
 				5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */,
 				556FCF011E4D8EAC00731450 /* DDTest.c in Sources */,

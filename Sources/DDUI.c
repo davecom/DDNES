@@ -65,8 +65,50 @@ void event_loop() {
     bool quit = false;
     while (!quit) {
         while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
+            switch (e.type) {
+                case SDL_QUIT:
+                    quit = true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch (e.key.keysym.sym) {
+                        case SDLK_x:
+                            SETP1A;
+                            break;
+                        case SDLK_z:
+                            SETP1B;
+                            break;
+                        case SDLK_s:
+                            printf("start pressed");
+                            SETP1START;
+                            printf("%x", JOYPAD1);
+                            break;
+                        case SDLK_a:
+                            SETP1SELECT;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    switch (e.key.keysym.sym) {
+                        case SDLK_x:
+                            UNSETP1A;
+                            break;
+                        case SDLK_z:
+                            UNSETP1B;
+                            break;
+                        case SDLK_s:
+                            UNSETP1START;
+                            break;
+                        case SDLK_a:
+                            UNSETP1SELECT;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         // clear renderer
