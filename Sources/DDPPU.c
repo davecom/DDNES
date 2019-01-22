@@ -81,14 +81,15 @@ static void figure_out_sprites(int scanline) {
         if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
             // copy memory over to secondary ram for display readiness
             memcpy(secondary_spr_ram + (scanline_sprite_count * 4), spr_ram + i, 4);
+            if (scanline_sprite_count >= 7) { // don't allow more than 8 sprites per scanline
+                break;
+            }
             scanline_sprite_count++;
         }
         
         //printf("%d", spr_ram[i]);
         
-        if (scanline_sprite_count >= 8) {
-            break;
-        }
+        
     }
 }
 
@@ -102,6 +103,9 @@ static void draw_sprite_pixel(int x, int y) {
         byte x_position = secondary_spr_ram[i + 3];
         
         if (x >= x_position && x < (x_position + 8)) { // somewhere in this sprite
+            if (x_position == 0) {
+                printf("found one");
+            }
             bool flip_y = (secondary_spr_ram[i + 2] >> 7) & 1;
             byte sprite_line = scanline - y_position; // where vertically in the sprite are we
             if (flip_y) {
