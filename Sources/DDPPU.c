@@ -42,6 +42,7 @@ struct {
 #define SHOW_SPRITES (PPU_CONTROL2 & 0b00010000)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
+byte secondary_spr_ram[SECONDARY_SPR_RAM_SIZE]; // secondary sprite RAM
 byte nametables[NAMETABLE_SIZE]; // nametable ram
 byte palette[PALETTE_SIZE]; // pallete ram
 
@@ -63,39 +64,70 @@ void ppu_reset() {
     W = false;
 }
 
-// try drawing sprites in a quick and dirty way...
-// once per scanline; maybe it won't work
+byte scanline_sprite_count = 0;
+
+// figure out which sprites to draw and put them in secondary RAM
 // assume 8 x 8 sprites for now
-static void draw_sprites(int scanline) {
+static void figure_out_sprites(int scanline) {
+    memset(secondary_spr_ram, 0xFF, SECONDARY_SPR_RAM_SIZE); // reset memory
+    scanline_sprite_count = 0; // only take first 8 sprites
     for (int i = 0; i < SPR_RAM_SIZE; i += 4) {
         byte y_position = spr_ram[i];
         if (y_position == 0xFF) {
             continue; // 0xFF is marker for no sprite data
         }
-        //printf("%d", spr_ram[i]);
-        bool flip_y = (spr_ram[i + 2] >> 7) & 1;
         byte sprite_line = scanline - y_position; // where vertically in the sprite are we
-        if (flip_y) {
-            sprite_line = 7 - sprite_line;
-        }
+        
         if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
-            byte index = spr_ram[i + 1];
+            // copy memory over to secondary ram for display readiness
+            memcpy(secondary_spr_ram + (scanline_sprite_count * 4), spr_ram + i, 4);
+            scanline_sprite_count++;
+        }
+        
+        //printf("%d", spr_ram[i]);
+        
+        if (scanline_sprite_count >= 8) {
+            break;
+        }
+    }
+}
+
+static void draw_sprite_pixel(int x, int y) {
+    int scanline = y - 1;  // we actually draw sprites shifted one pixel down
+    for (int i = scanline_sprite_count * 4; i >= 0; i -= 4) {
+        byte y_position = secondary_spr_ram[i];
+        if (y_position == 0xFF) {
+            continue;
+        }
+        byte x_position = secondary_spr_ram[i + 3];
+        
+        if (x >= x_position && x < (x_position + 8)) { // somewhere in this sprite
+            bool flip_y = (secondary_spr_ram[i + 2] >> 7) & 1;
+            byte sprite_line = scanline - y_position; // where vertically in the sprite are we
+            if (flip_y) {
+                sprite_line = 7 - sprite_line;
+            }
+            byte index = secondary_spr_ram[i + 1];
             word bit0sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line;
             word bit1sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line + 8;
             byte bit0s = ppu_mem_read(bit0sAddress);
             byte bit1s = ppu_mem_read(bit1sAddress);
-            byte bit3and2 = ((spr_ram[i + 2]) & 3) << 2;
+            byte bit3and2 = ((secondary_spr_ram[i + 2]) & 3) << 2;
             // draw the 8 pixels on this scanline
-            bool flip_x = (spr_ram[i + 2] >> 6) & 1;
-            for (int x = 0; x < 8; x++) {
-                byte bit1and0 = (((bit1s >> x) & 1) << 1) | (((bit0s >> x) & 1) << 0);
-                if (bit1and0 == 0) {
-                    continue;
-                }
-                byte color = bit3and2 | bit1and0;
-                color = ppu_mem_read(0x3F10 + color); // pull from palette memory
-                draw_pixel(spr_ram[i + 3] + (flip_x ? x : 7 -x), y_position + sprite_line, color);
+            bool flip_x = (secondary_spr_ram[i + 2] >> 6) & 1;
+            
+            byte x_loc = x - x_position; // position within sprite
+            if (!flip_x) {
+                x_loc = 7 - x_loc;
             }
+            
+            byte bit1and0 = (((bit1s >> x_loc) & 1) << 1) | (((bit0s >> x_loc) & 1) << 0);
+            if (bit1and0 == 0) { // transparent pixel... skip
+                continue;
+            }
+            byte color = bit3and2 | bit1and0;
+            color = ppu_mem_read(0x3F10 + color); // pull from palette memory
+            draw_pixel(x, y, color);
         }
     }
 }
@@ -121,12 +153,15 @@ inline void ppu_step() {
     static byte fine_y = 0;
     uint32_t temp_data = 0;
     //printf("scanline %d cycle %d V %x\n", scanline, cycle, V);
-    if (SHOW_BACKGROUND && SHOW_SPRITES) {
+    if (SHOW_BACKGROUND) {
         if (scanline < 240 && cycle < 256) {
             
             // render
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
             draw_pixel(cycle, scanline, palette[color]);
+            if (SHOW_SPRITES) {
+                draw_sprite_pixel(cycle, scanline);
+            }
         }
         if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {
             
@@ -213,7 +248,7 @@ inline void ppu_step() {
             // copy x
             // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             V = (V & 0xFBE0) | (T & 0x041F);
-            draw_sprites(scanline);
+            figure_out_sprites(scanline);
         }
         
         if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y

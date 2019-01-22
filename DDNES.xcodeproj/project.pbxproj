@@ -50,8 +50,8 @@
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
 		558AC0831E3B078800B786DE /* DD6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DD6502.h; path = Sources/DD6502.h; sourceTree = "<group>"; };
 		55CD01A51E50D71200D4C7AB /* DDTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTypes.h; path = Sources/DDTypes.h; sourceTree = "<group>"; };
-		55ECC5E821F2FC85000A0976 /* DDInput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDInput.h; sourceTree = "<group>"; };
-		55ECC5E921F2FC85000A0976 /* DDInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = DDInput.c; sourceTree = "<group>"; };
+		55ECC5E821F2FC85000A0976 /* DDInput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DDInput.h; path = Sources/DDInput.h; sourceTree = "<group>"; };
+		55ECC5E921F2FC85000A0976 /* DDInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DDInput.c; path = Sources/DDInput.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

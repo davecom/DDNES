@@ -18,6 +18,7 @@
 #include "DD6502.h"
 
 #define SPR_RAM_SIZE 256
+#define SECONDARY_SPR_RAM_SIZE 32
 #define NAMETABLE_SIZE 2048
 #define PALETTE_SIZE 32
 
