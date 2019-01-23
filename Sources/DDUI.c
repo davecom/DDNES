@@ -72,18 +72,30 @@ void event_loop() {
                 case SDL_KEYDOWN:
                     switch (e.key.keysym.sym) {
                         case SDLK_x:
-                            SETP1A;
+                            joypad1.a = true;
                             break;
                         case SDLK_z:
-                            SETP1B;
+                            joypad1.b = true;
                             break;
                         case SDLK_s:
                             printf("start pressed");
-                            SETP1START;
-                            printf("%x", JOYPAD1);
+                            joypad1.start = true;
+                            printf("%x", joypad1.start);
                             break;
                         case SDLK_a:
-                            SETP1SELECT;
+                            joypad1.select = true;
+                            break;
+                        case SDLK_UP:
+                            joypad1.up = true;
+                            break;
+                        case SDLK_DOWN:
+                            joypad1.down = true;
+                            break;
+                        case SDLK_LEFT:
+                            joypad1.left = true;
+                            break;
+                        case SDLK_RIGHT:
+                            joypad1.right = true;
                             break;
                         default:
                             break;
@@ -92,16 +104,28 @@ void event_loop() {
                 case SDL_KEYUP:
                     switch (e.key.keysym.sym) {
                         case SDLK_x:
-                            UNSETP1A;
+                            joypad1.a = false;
                             break;
                         case SDLK_z:
-                            UNSETP1B;
+                            joypad1.b = false;
                             break;
                         case SDLK_s:
-                            UNSETP1START;
+                            joypad1.start = false;
                             break;
                         case SDLK_a:
-                            UNSETP1SELECT;
+                            joypad1.select = false;
+                            break;
+                        case SDLK_UP:
+                            joypad1.up = false;
+                            break;
+                        case SDLK_DOWN:
+                            joypad1.down = false;
+                            break;
+                        case SDLK_LEFT:
+                            joypad1.left = false;
+                            break;
+                        case SDLK_RIGHT:
+                            joypad1.right = false;
                             break;
                         default:
                             break;

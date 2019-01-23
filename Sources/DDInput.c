@@ -8,5 +8,5 @@
 
 #include "DDInput.h"
 
-byte JOYPAD1 = 0;
-byte JOYPAD2 = 0;
+Joypad joypad1;
+Joypad joypad2;

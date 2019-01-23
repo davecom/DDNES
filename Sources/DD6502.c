@@ -445,6 +445,17 @@ void cpu_reset() {
     flags.b = false;
     flags.v = false;
     flags.n = false;
+    // reset controllers
+    joypad1.a = false;
+    joypad1.b = false;
+    joypad1.select = false;
+    joypad1.start = false;
+    joypad1.up = false;
+    joypad1.down = false;
+    joypad1.left = false;
+    joypad1.right = false;
+    joypad1.read_count = 0;
+    joypad1.strobe = false;
 }
 
 uint64_t instruction_count = 0;
@@ -873,7 +884,31 @@ static inline byte read_memory(word data, mem_mode mode) {
         return read_ppu_register(temp);
     } else if (address <= 0x4017) { // APU and IO
         if (address == 0x4016) { // byte representing configuration of first joypad        
-            return JOYPAD1;
+            if (joypad1.strobe) {
+                return joypad1.a;
+            }
+            joypad1.read_count++;
+            switch (joypad1.read_count) {
+                case 1:
+                    return 0x40 | joypad1.a; // 0x40 for open bus...
+                case 2:
+                    return 0x40 | joypad1.b;
+                case 3:
+                    return 0x40 | joypad1.select;
+                case 4:
+                    return 0x40 | joypad1.start;
+                case 5:
+                    return 0x40 | joypad1.up;
+                case 6:
+                    return 0x40 | joypad1.down;
+                case 7:
+                    return 0x40 | joypad1.left;
+                case 8:
+                    return 0x40 | joypad1.right;
+                default: // all others return 1 on official nintendo controllers
+                    return 0x41;
+            }
+            
         }
         return 0; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO
@@ -910,6 +945,11 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
             dma_transfer(tempArray);
             // stall for 512 cycles while this completes
             stall = 512;
+        } else if (address == 0x4016) {
+            if (joypad1.strobe && !(value & 1)) {
+                joypad1.read_count = 0;
+            }
+            joypad1.strobe = (value & 1);
         }
         return; // TODO put in APU stuff
     } else if (address <= 0x401F) { // usually disabled APU & IO

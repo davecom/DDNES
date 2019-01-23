@@ -9,18 +9,23 @@
 #ifndef DDInput_h
 #define DDInput_h
 
+#include <stdbool.h>
 #include "DDTypes.h"
 
-extern byte JOYPAD1;
-extern byte JOYPAD2;
+typedef struct {
+    bool a;
+    bool b;
+    bool select;
+    bool start;
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+    bool strobe;
+    long read_count;
+} Joypad;
 
-#define SETP1A JOYPAD1 |= 0x80
-#define UNSETP1A JOYPAD1 &= 0x7F
-#define SETP1B JOYPAD1 |= 0x40
-#define UNSETP1B JOYPAD1 &= 0xBF
-#define SETP1SELECT JOYPAD1 |= 0x20
-#define UNSETP1SELECT JOYPAD1 &= 0xDF
-#define SETP1START JOYPAD1 |= 0x10
-#define UNSETP1START JOYPAD1 &= 0xEF
+extern Joypad joypad1;
+extern Joypad joypad2;
 
 #endif /* DDInput_h */
