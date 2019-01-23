@@ -876,22 +876,23 @@ static inline byte read_memory(word data, mem_mode mode) {
             if (joypad1.strobe) {
                 return joypad1.a;
             }
+            joypad1.read_count++;
             switch (joypad1.read_count) {
-                case 0:
-                    return 0x40 | joypad1.a;
                 case 1:
-                    return 0x40 | joypad1.b;
+                    return 0x40 | joypad1.a;
                 case 2:
-                    return 0x40 | joypad1.select;
+                    return 0x40 | joypad1.b;
                 case 3:
-                    return 0x40 | joypad1.start;
+                    return 0x40 | joypad1.select;
                 case 4:
-                    return 0x40 | joypad1.up;
+                    return 0x40 | joypad1.start;
                 case 5:
-                    return 0x40 | joypad1.down;
+                    return 0x40 | joypad1.up;
                 case 6:
-                    return 0x40 | joypad1.left;
+                    return 0x40 | joypad1.down;
                 case 7:
+                    return 0x40 | joypad1.left;
+                case 8:
                     return 0x40 | joypad1.right;
                 default: // all others return 1 on official nintendo controllers
                     return 0x41;
