@@ -78,9 +78,9 @@ void event_loop() {
                             joypad1.b = true;
                             break;
                         case SDLK_s:
-                            printf("start pressed");
+                            //printf("start pressed");
                             joypad1.start = true;
-                            printf("%x", joypad1.start);
+                            //printf("%x", joypad1.start);
                             break;
                         case SDLK_a:
                             joypad1.select = true;
