@@ -1028,7 +1028,7 @@ void trigger_NMI() {
     I = true;
     // set PC to NMI vector
     PC = ((word)read_memory(NMI_VECTOR, ABSOLUTE)) | (((word)read_memory(NMI_VECTOR + 1, ABSOLUTE)) << 8);
-    printf("triggered NMI\n");
+    //printf("triggered NMI\n");
 }
 
 #ifdef TEST

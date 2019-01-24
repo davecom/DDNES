@@ -82,6 +82,7 @@ static void figure_out_sprites(int scanline) {
             // copy memory over to secondary ram for display readiness
             memcpy(secondary_spr_ram + (scanline_sprite_count * 4), spr_ram + i, 4);
             if (scanline_sprite_count >= 7) { // don't allow more than 8 sprites per scanline
+                PPU_STATUS |= 0b00100000; // set sprite overflow bit
                 break;
             }
             scanline_sprite_count++;
@@ -103,9 +104,6 @@ static void draw_sprite_pixel(int x, int y) {
         byte x_position = secondary_spr_ram[i + 3];
         
         if (x >= x_position && x < (x_position + 8)) { // somewhere in this sprite
-            if (x_position == 0) {
-                printf("found one");
-            }
             bool flip_y = (secondary_spr_ram[i + 2] >> 7) & 1;
             byte sprite_line = scanline - y_position; // where vertically in the sprite are we
             if (flip_y) {
@@ -254,6 +252,10 @@ inline void ppu_step() {
             V = (V & 0xFBE0) | (T & 0x041F);
             figure_out_sprites(scanline);
         }
+        // clear PPU_STATUS ($2002 at dot 1 of the pre-render line
+        if (scanline == 261 && cycle == 1) {
+            PPU_STATUS &= 0b00011111;
+        }
         
         if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y
             V = (V & 0x841F) | (T & 0x7BE0);
@@ -345,7 +347,10 @@ byte read_ppu_register(word address) {
     switch(address) {
         case 0x2002:
             W = false;
-            return PPU_STATUS;
+            byte current = PPU_STATUS;
+            // clear vblank on $2002 read
+            PPU_STATUS &= 0b01111111;
+            return current;
         case 0x2004:
             return spr_ram[SPR_RAM_ADDRESS];
         case 0x2007: // implement writing to vram
