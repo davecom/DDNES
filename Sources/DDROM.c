@@ -35,6 +35,8 @@ bool loadROM(const char *filePath) {
     }
     
     rom = calloc(1, sizeof(ines_rom));
+    //memset(&(rom->header), 0, sizeof(ines_header));
+    //printf("ines_header size %d\n", sizeof(ines_header));
     size_t amountRead = fread(&(rom->header), sizeof(ines_header), 1, file);
     //printf("%d header size\n", sizeof(ines_header));
     //printf("%d amountRead\n", amountRead);
@@ -91,8 +93,8 @@ bool loadROM(const char *filePath) {
     // allocate chr rom data and copy from file
     if(rom->header.chrRomSize > 0) {
         rom->chrRom = calloc(rom->header.chrRomSize * CHR_ROM_BASE_UNIT_SIZE, 1);
-        amountRead = fread(rom->chrRom, 1, rom->header.prgRomSize * CHR_ROM_BASE_UNIT_SIZE, file);
-        if (amountRead != (rom->header.prgRomSize * CHR_ROM_BASE_UNIT_SIZE)) {
+        amountRead = fread(rom->chrRom, 1, rom->header.chrRomSize * CHR_ROM_BASE_UNIT_SIZE, file);
+        if (amountRead != (rom->header.chrRomSize * CHR_ROM_BASE_UNIT_SIZE)) {
             fprintf(stderr, "File %s doesn't have enough data to fill CHR ROM!\n", filePath);
             //fclose(file); // clean up
             //return false;
@@ -101,6 +103,12 @@ bool loadROM(const char *filePath) {
     
     // get mapper version
     rom->mapper = ((rom->header.flags6 & 0xF0) >> 4) | (rom->header.flags7 & 0xF0);
+    // Early roms ignored bytes 7-15 of the iNES header and put in the strange words
+    // DiskDude!; this results in 64 being added to the mapper number
+    if (memcmp("DiskDude!", (const char*)rom + 7, 9) == 0) { // early rom that ignored bytes 7-15 of header
+        rom->mapper = rom->mapper - 64;
+    }
+    
     // setup mapper read/write methods
     rom->readCartridge = mapperReaders[rom->mapper];
     rom->writeCartridge = mapperWriters[rom->mapper];
@@ -136,7 +144,7 @@ byte readMapper0(word address) {
             printf("Tried reading from battery backed RAM at %x, but there is none", address);
             return 0;
         }
-    } else if (address > 0x8000) {
+    } else if (address >= 0x8000) {
         if (rom->header.prgRomSize > 1) {
             return rom->prgRom[address - 0x8000];
         } else {
@@ -167,7 +175,7 @@ void writeMapper0(word address, byte value) {
 byte readMapper1(word address) {
     if (address >= 0x6000 && address < 0x8000) {
         return rom->prgRam[address - 0x6000];
-    } else if (address > 0x8000) {
+    } else if (address >= 0x8000) {
         if (rom->header.prgRomSize > 1) {
             return rom->prgRom[address - 0x8000];
         } else {
