@@ -42,6 +42,7 @@ struct {
 #define SHOW_SPRITES (PPU_CONTROL2 & 0b00010000)
 #define LEFT_8_SPRITE_SHOW (PPU_CONTROL2 & 0b00000100)
 #define LEFT_8_BACKGROUND_SHOW (PPU_CONTROL2 & 0b00000010)
+#define VBLANK (PPU_STATUS & 0b10000000)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 byte secondary_spr_ram[SECONDARY_SPR_RAM_SIZE]; // secondary sprite RAM
@@ -170,9 +171,12 @@ inline void ppu_step() {
             
             // render
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
-            draw_pixel(cycle - 1, scanline, palette[color]);
+            bool transparent_background = (color & 3) == 0;
+            // if the background is transparent, we use the first color
+            // in the palette
+            draw_pixel(cycle - 1, scanline, transparent_background ? palette[0] : palette[color]);
             if (SHOW_SPRITES) {
-                draw_sprite_pixel(cycle - 1, scanline, (color & 3) == 0);
+                draw_sprite_pixel(cycle - 1, scanline, transparent_background);
             }
         }
         if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {
@@ -308,6 +312,11 @@ void write_ppu_register(word address, byte value) {
         case 0x2000:
             PPU_CONTROL1 = value;
             T = (T & 0xF3FF) | ((((word)value) & 0x03) << 10);
+            // putting in the following immediate nmi generation broke Tennis
+            // immediately generate nmi if called for
+//            if (VBLANK && GENERATE_NMI) {
+//                trigger_NMI();
+//            }
             break;
         case 0x2001:
             PPU_CONTROL2 = value;
@@ -365,7 +374,7 @@ byte read_ppu_register(word address) {
             return current;
         case 0x2004:
             return spr_ram[SPR_RAM_ADDRESS];
-        case 0x2007: // implement writing to vram
+        case 0x2007:
             value = ppu_mem_read(V);
             if (V % 0x4000 < 0x3F00) {
                 buffered = value;
@@ -398,8 +407,12 @@ static inline byte ppu_mem_read(word address) {
             }
         }
         return nametables[address];
-    } else if (address < 0x4000) {
+    } else if (address < 0x4000) { // palette memory
         address = (address - 0x3F00) % 0x20;
+        // $3F10/$3F14/$3F18/$3F1C are mirrors of $3F00/$3F04/$3F08/$3F0C
+        if ((address > 0x0F) && ((address % 0x04) == 0)) {
+            address = address - 0x10;
+        }
         return palette[address];
     } else {
         fprintf(stderr, "ERROR: Unrecognized PPU address read %X", address);
@@ -424,8 +437,12 @@ static inline void ppu_mem_write(word address, byte value) {
         }
         
         nametables[address] = value;
-    } else if (address < 0x4000) {
+    } else if (address < 0x4000) { // palette memory
         address = (address - 0x3F00) % 0x20;
+        // $3F10/$3F14/$3F18/$3F1C are mirrors of $3F00/$3F04/$3F08/$3F0C
+        if ((address > 0x0F) && ((address % 0x04) == 0)) {
+            address = address - 0x10;
+        }
         palette[address] = value;
     } else {
         fprintf(stderr, "ERROR: Unrecognized PPU address write %X", address);
