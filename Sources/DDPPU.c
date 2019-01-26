@@ -109,9 +109,6 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
             continue;
         }
         bool background_sprite = (secondary_spr_ram[i + 2] >> 5) & 1;
-        if (background_sprite && !background_transparent) {
-            continue;  // don't draw over opaque background pixels if this is background sprite
-        }
         byte x_position = secondary_spr_ram[i + 3];
         
         if (x >= x_position && x < (x_position + 8)) { // somewhere in this sprite
@@ -143,6 +140,12 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
             if (i == 0 && !background_transparent && sprite_zero_in_secondary && !(x < 8 && (!LEFT_8_SPRITE_SHOW || !LEFT_8_BACKGROUND_SHOW)) && SHOW_BACKGROUND && SHOW_SPRITES) {
                 PPU_STATUS |= 0b01000000;
             }
+            // need to do this after sprite zero checking so we still count background
+            // sprites for sprite zero checks
+            if (background_sprite && !background_transparent) {
+                continue;  // don't draw over opaque background pixels if this is background sprite
+            }
+            
             byte color = bit3and2 | bit1and0;
             color = ppu_mem_read(0x3F10 + color); // pull from palette memory
             draw_pixel(x, y, color);
@@ -275,8 +278,6 @@ inline void ppu_step() {
             V = (V & 0x841F) | (T & 0x7BE0);
         }
         
-    } else {
-        PPU_STATUS &= 0b10111111; // no sprite zero hit when no background rendering
     }
     
     if (scanline == 241 && cycle == 0) {
