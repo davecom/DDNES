@@ -10,3 +10,4 @@
 
 Joypad joypad1;
 Joypad joypad2;
+bool debug = false;

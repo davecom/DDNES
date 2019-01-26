@@ -474,7 +474,9 @@ void cpu_cycle() {
     //printf("%d %.4X\n", info.length, data);
     
     //#ifdef DEBUG
-    //debugPrint(info, opcode, data);
+    if (debug) {
+        debugPrint(info, opcode, data);
+    }
 //    if (instruction_count == 3350) {
 //        instruction_count = instruction_count;
 //    }

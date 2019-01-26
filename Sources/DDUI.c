@@ -97,6 +97,9 @@ void event_loop() {
                         case SDLK_RIGHT:
                             joypad1.right = true;
                             break;
+                        case SDLK_d:
+                            debug = !debug;
+                            break;
                         default:
                             break;
                     }

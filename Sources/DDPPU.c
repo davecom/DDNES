@@ -397,7 +397,10 @@ static inline byte ppu_mem_read(word address) {
     if (address < 0x2000) { // pattern tables
         return rom->readCartridge(address);
     } else if (address < 0x3F00) { // name tables
-        address = (address - 0x2000);
+//        if (address >= 0x2800) {
+//            printf("tried high read");
+//        }
+        address = (address - 0x2000) % 0x1000; // 3000-3EFF is a mirror.
         if (rom->verticalMirroring) {
             address = address % 0x0800;
         } else { // horizontal mirroring
@@ -426,7 +429,10 @@ static inline void ppu_mem_write(word address, byte value) {
     if (address < 0x2000) { // pattern tables
         rom->writeCartridge(address, value);
     } else if (address < 0x3F00) { // name tables
-        address = (address - 0x2000);
+//        if (address >= 0x2800) {
+//            printf("tried high write");
+//        }
+        address = (address - 0x2000) % 0x1000; // 3000-3EFF is a mirror.;
         if (rom->verticalMirroring) {
             address = address % 0x0800;
         } else { // horizontal mirroring

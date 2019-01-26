@@ -41,7 +41,7 @@ int main(int argc, const char * argv[]) {
     test();
     #else // otherwise try to load the game specified on the command line
     if (argc != 2) {
-        printf("Expected exactly 1 command-line argument—the name of the ROM file to execute.");
+        printf("Expected exactly 1 command-line argument—the path of the ROM file to execute.");
         return 1;
     }
     if (!loadROM(argv[1])) { // load the rom

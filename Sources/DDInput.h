@@ -28,4 +28,6 @@ typedef struct {
 extern Joypad joypad1;
 extern Joypad joypad2;
 
+extern bool debug;
+
 #endif /* DDInput_h */
