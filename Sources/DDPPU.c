@@ -94,12 +94,16 @@ static void figure_out_sprites(int scanline) {
     }
 }
 
-static void draw_sprite_pixel(int x, int y) {
+static void draw_sprite_pixel(int x, int y, bool background_transparent) {
     int scanline = y - 1;  // we actually draw sprites shifted one pixel down
     for (int i = scanline_sprite_count * 4; i >= 0; i -= 4) {
         byte y_position = secondary_spr_ram[i];
         if (y_position == 0xFF) {
             continue;
+        }
+        bool background_sprite = (secondary_spr_ram[i + 2] >> 5) & 1;
+        if (background_sprite && !background_transparent) {
+            continue;  // don't draw over opaque background pixels if this is background sprite
         }
         byte x_position = secondary_spr_ram[i + 3];
         
@@ -162,7 +166,7 @@ inline void ppu_step() {
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
             draw_pixel(cycle, scanline, palette[color]);
             if (SHOW_SPRITES) {
-                draw_sprite_pixel(cycle, scanline);
+                draw_sprite_pixel(cycle, scanline, (color & 3) == 0);
             }
         }
         if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {
