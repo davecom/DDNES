@@ -387,7 +387,16 @@ static inline byte ppu_mem_read(word address) {
     if (address < 0x2000) { // pattern tables
         return rom->readCartridge(address);
     } else if (address < 0x3F00) { // name tables
-        address = (address - 0x2000) % 0x0800;
+        address = (address - 0x2000);
+        if (rom->verticalMirroring) {
+            address = address % 0x0800;
+        } else { // horizontal mirroring
+            if (address >= 0x400 && address < 0xC00) {
+                address = address - 0x400;
+            } else if (address >= 0xC00) {
+                address = address - 0x800;
+            }
+        }
         return nametables[address];
     } else if (address < 0x4000) {
         address = (address - 0x3F00) % 0x20;
@@ -403,7 +412,17 @@ static inline void ppu_mem_write(word address, byte value) {
     if (address < 0x2000) { // pattern tables
         rom->writeCartridge(address, value);
     } else if (address < 0x3F00) { // name tables
-        address = (address - 0x2000) % 0x0800;
+        address = (address - 0x2000);
+        if (rom->verticalMirroring) {
+            address = address % 0x0800;
+        } else { // horizontal mirroring
+            if (address >= 0x400 && address < 0xC00) {
+                address = address - 0x400;
+            } else if (address >= 0xC00) {
+                address = address - 0x800;
+            }
+        }
+        
         nametables[address] = value;
     } else if (address < 0x4000) {
         address = (address - 0x3F00) % 0x20;
