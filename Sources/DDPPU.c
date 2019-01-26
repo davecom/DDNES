@@ -139,11 +139,6 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
 }
 
 
-
-//// just for debugging
-//static void draw_background_pixel(int scanline, int cycle) {
-//    index = scanline
-//}
 // Based on https://wiki.nesdev.com/w/index.php/PPU_scrolling
 // and https://github.com/fogleman/nes/blob/master/nes/ppu.go
 inline void ppu_step() {
@@ -160,13 +155,13 @@ inline void ppu_step() {
     uint32_t temp_data = 0;
     //printf("scanline %d cycle %d V %x\n", scanline, cycle, V);
     if (SHOW_BACKGROUND) {
-        if (scanline < 240 && cycle < 256) {
+        if (scanline < 240 && cycle > 0 && cycle <= 256) {
             
             // render
             byte color = ((tile_data >> 32) >> ((7 - X) * 4)) & 0x0F;
-            draw_pixel(cycle, scanline, palette[color]);
+            draw_pixel(cycle - 1, scanline, palette[color]);
             if (SHOW_SPRITES) {
-                draw_sprite_pixel(cycle, scanline, (color & 3) == 0);
+                draw_sprite_pixel(cycle - 1, scanline, (color & 3) == 0);
             }
         }
         if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {

@@ -301,6 +301,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/SDL",
 				);
+				GCC_OPTIMIZATION_LEVEL = 3;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
