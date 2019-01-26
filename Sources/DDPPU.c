@@ -40,6 +40,8 @@ struct {
 #define GENERATE_NMI (PPU_CONTROL1 & 0b10000000)
 #define SHOW_BACKGROUND (PPU_CONTROL2 & 0b00001000)
 #define SHOW_SPRITES (PPU_CONTROL2 & 0b00010000)
+#define LEFT_8_SPRITE_SHOW (PPU_CONTROL2 & 0b00000100)
+#define LEFT_8_BACKGROUND_SHOW (PPU_CONTROL2 & 0b00000010)
 
 byte spr_ram[SPR_RAM_SIZE]; // sprite RAM
 byte secondary_spr_ram[SECONDARY_SPR_RAM_SIZE]; // secondary sprite RAM
@@ -65,10 +67,11 @@ void ppu_reset() {
 }
 
 byte scanline_sprite_count = 0;
-
+bool sprite_zero_in_secondary = false;
 // figure out which sprites to draw and put them in secondary RAM
 // assume 8 x 8 sprites for now
 static void figure_out_sprites(int scanline) {
+    sprite_zero_in_secondary = false;
     memset(secondary_spr_ram, 0xFF, SECONDARY_SPR_RAM_SIZE); // reset memory
     scanline_sprite_count = 0; // only take first 8 sprites
     for (int i = 0; i < SPR_RAM_SIZE; i += 4) {
@@ -81,6 +84,9 @@ static void figure_out_sprites(int scanline) {
         if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
             // copy memory over to secondary ram for display readiness
             memcpy(secondary_spr_ram + (scanline_sprite_count * 4), spr_ram + i, 4);
+            if (i == 0) {
+                sprite_zero_in_secondary = true;
+            }
             if (scanline_sprite_count >= 7) { // don't allow more than 8 sprites per scanline
                 PPU_STATUS |= 0b00100000; // set sprite overflow bit
                 break;
@@ -130,6 +136,11 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
             byte bit1and0 = (((bit1s >> x_loc) & 1) << 1) | (((bit0s >> x_loc) & 1) << 0);
             if (bit1and0 == 0) { // transparent pixel... skip
                 continue;
+            }
+            // this is not transparent, is it a sprite zero hit therefore?
+            // check left 8 pixel clipping is not off
+            if (i == 0 && !background_transparent && sprite_zero_in_secondary && !(x < 8 && (!LEFT_8_SPRITE_SHOW || !LEFT_8_BACKGROUND_SHOW)) && SHOW_BACKGROUND && SHOW_SPRITES) {
+                PPU_STATUS |= 0b01000000;
             }
             byte color = bit3and2 | bit1and0;
             color = ppu_mem_read(0x3F10 + color); // pull from palette memory
@@ -260,6 +271,8 @@ inline void ppu_step() {
             V = (V & 0x841F) | (T & 0x7BE0);
         }
         
+    } else {
+        PPU_STATUS &= 0b10111111; // no sprite zero hit when no background rendering
     }
     
     if (scanline == 241 && cycle == 0) {
@@ -272,7 +285,7 @@ inline void ppu_step() {
     }
     
     if (scanline == 261 && cycle == 1) {
-        PPU_STATUS &= 0b01111111; // vblank off
+        PPU_STATUS &= 0b00111111; // vblank off, clear sprite zero hit
     }
     
 

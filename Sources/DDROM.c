@@ -99,6 +99,10 @@ bool loadROM(const char *filePath) {
             //fclose(file); // clean up
             //return false;
         }
+        rom->hasCharacterRAM = false;
+    } else { // if chrRomSize is 0 that means this uses chr_ram which is 8k
+        rom->chrRom = calloc(CHR_ROM_BASE_UNIT_SIZE, 1);
+        rom->hasCharacterRAM = true;
     }
     
     // get mapper version
@@ -158,8 +162,11 @@ byte readMapper0(word address) {
 
 void writeMapper0(word address, byte value) {
     if (address < 0x2000) {
-        return; // for mapper 0, treat writing to CHR as a no-op
-        //rom->chrRom[address] = value;
+        if (rom->hasCharacterRAM) {
+            rom->chrRom[address] = value;
+        } else {
+            return; // for mapper 0, treat writing to CHR as a no-op
+        }
     } else if (address >= 0x6000 && address < 0x8000) {
         if (rom->batteryBackedRAM) {
             rom->prgRam[address - 0x6000] = value;

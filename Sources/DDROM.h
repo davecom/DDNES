@@ -42,6 +42,7 @@ typedef struct {
     bool fourScreenVRAM;
     bool PAL;
     bool vsSystem;
+    bool hasCharacterRAM;
     byte (*readCartridge)(word address);
     void (*writeCartridge)(word address, byte value);
 } ines_rom;
