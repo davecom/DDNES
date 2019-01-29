@@ -13,7 +13,6 @@ struct {
     byte ppu_control2; // PPU Control Register 2 $2001
     byte ppu_status; // PPU Status Register $2002
     byte spr_ram_address; // SPR-RAM address to write next to through $2003
-    byte spr_ram_io; // SPR-RAM I/O register (what to write to $2003) $2004
     // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
     word v; // current VRAM address (15 bits)
     word t; // temporary VRAM address (15 bits)
@@ -60,7 +59,6 @@ void ppu_reset() {
     PPU_CONTROL2 = 0;
     PPU_STATUS = 0;
     SPR_RAM_ADDRESS = 0;
-    SPR_RAM_IO = 0;
     V = 0;
     T = 0;
     X = 0;
@@ -232,7 +230,7 @@ inline void ppu_step() {
                         // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
                         
                         if ((V & 0x001F) == 31) { // if coarse X == 31
-                            V &= 0xFFE0;         // coarse X = 0
+                            V &= ~0x001F;         // coarse X = 0
                             V ^= 0x0400;           // switch horizontal nametable
                         }
                         else {
@@ -249,7 +247,7 @@ inline void ppu_step() {
             if ((V & 0x7000) != 0x7000) {       // if fine Y < 7
                 V += 0x1000;                     // increment fine Y
             } else {
-                V &= 0x8FFF;                     // fine Y = 0
+                V &= ~0x7000;                     // fine Y = 0
                 int y = (V & 0x03E0) >> 5;        // let y = coarse Y
                 if (y == 29) {
                     y = 0;                          // coarse Y = 0
@@ -259,7 +257,7 @@ inline void ppu_step() {
                 } else {
                     y += 1;                         // increment coarse Y
                 }
-                V = (V & 0xFC1F) | (y << 5);     // put coarse Y back into v
+                V = (V & ~0x03E0) | (y << 5);     // put coarse Y back into v
             }
             
         }
@@ -267,7 +265,16 @@ inline void ppu_step() {
             // copy x
             // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             V = (V & 0xFBE0) | (T & 0x041F);
-            figure_out_sprites(scanline);
+            
+        }
+        if (cycle == 257) {
+            if (SHOW_SPRITES) {
+                if (scanline < 240) {
+                    figure_out_sprites(scanline);
+                } else {
+                    scanline_sprite_count = 0;
+                }
+            }
         }
         // clear PPU_STATUS ($2002 at dot 1 of the pre-render line
         if (scanline == 261 && cycle == 1) {
@@ -326,8 +333,8 @@ void write_ppu_register(word address, byte value) {
             SPR_RAM_ADDRESS = value;
             break;
         case 0x2004:
-            SPR_RAM_IO = value;
             spr_ram[SPR_RAM_ADDRESS] = value;
+            SPR_RAM_ADDRESS++;
             break;
         case 0x2005:  // based on http://wiki.nesdev.com/w/index.php/PPU_scrolling
             if (!W) { // first write
@@ -383,7 +390,7 @@ byte read_ppu_register(word address) {
             } else {
                 buffered = ppu_mem_read(V - 0x1000);
             }
-            V += ADDRESS_INCREMENT; // every read to $2007 there is an increment of 1 or 31
+            V += ADDRESS_INCREMENT; // every read to $2007 there is an increment of 1 or 32
             return value;
         default:
             fprintf(stderr, "ERROR: Unrecognized PPU register read %X", address);
@@ -398,7 +405,7 @@ static inline byte ppu_mem_read(word address) {
         return rom->readCartridge(address);
     } else if (address < 0x3F00) { // name tables
 //        if (address >= 0x2800) {
-//            printf("tried high read");
+//            printf("tried high read at %x\n", address);
 //        }
         address = (address - 0x2000) % 0x1000; // 3000-3EFF is a mirror.
         if (rom->verticalMirroring) {
@@ -429,9 +436,9 @@ static inline void ppu_mem_write(word address, byte value) {
     if (address < 0x2000) { // pattern tables
         rom->writeCartridge(address, value);
     } else if (address < 0x3F00) { // name tables
-//        if (address >= 0x2800) {
-//            printf("tried high write");
-//        }
+        if (address >= 0x2000) {
+            printf("Writing %x at %x\n", value, address);
+        }
         address = (address - 0x2000) % 0x1000; // 3000-3EFF is a mirror.;
         if (rom->verticalMirroring) {
             address = address % 0x0800;

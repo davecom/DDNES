@@ -82,8 +82,8 @@ bool loadROM(const char *filePath) {
     }
     
     // allocate rom memory and copy from file
-    rom->prgRom = calloc(rom->header.prgRomSize * PRG_ROM_BASE_UNIT_SIZE, 1);
-    amountRead = fread(rom->prgRom, 1, rom->header.prgRomSize * PRG_ROM_BASE_UNIT_SIZE, file);
+    rom->prgRom = calloc((int)rom->header.prgRomSize * PRG_ROM_BASE_UNIT_SIZE, 1);
+    amountRead = fread(rom->prgRom, 1, (int)rom->header.prgRomSize * PRG_ROM_BASE_UNIT_SIZE, file);
     if (amountRead != (rom->header.prgRomSize * PRG_ROM_BASE_UNIT_SIZE)) {
         fprintf(stderr, "File %s doesn't have enough data to fill program ROM!\n", filePath);
         fclose(file); // clean up
@@ -150,6 +150,7 @@ byte readMapper0(word address) {
         }
     } else if (address >= 0x8000) {
         if (rom->header.prgRomSize > 1) {
+            
             return rom->prgRom[address - 0x8000];
         } else {
             return rom->prgRom[(address - 0x8000) % PRG_ROM_BASE_UNIT_SIZE];
@@ -165,6 +166,7 @@ void writeMapper0(word address, byte value) {
         if (rom->hasCharacterRAM) {
             rom->chrRom[address] = value;
         } else {
+            printf("Tried writing to character ram in non-character rom game at %.4X.", address);
             return; // for mapper 0, treat writing to CHR as a no-op
         }
     } else if (address >= 0x6000 && address < 0x8000) {
