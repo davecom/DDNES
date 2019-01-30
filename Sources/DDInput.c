@@ -10,4 +10,6 @@
 
 Joypad joypad1;
 Joypad joypad2;
+
 bool debug = false;
+bool nametable_debug = false;

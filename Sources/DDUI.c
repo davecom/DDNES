@@ -12,6 +12,10 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *texture;
 
+SDL_Window *nametable_window;
+SDL_Renderer *nametable_renderer;
+SDL_Texture *nametable_texture;
+
 //typedef struct pixel_list {
 //    int x;
 //    int y;
@@ -26,6 +30,8 @@ SDL_Texture *texture;
 mtx_t pixel_list_mutex;
 mtx_t frame_ready_mutex;
 cnd_t frame_ready_condition;
+mtx_t nametable_debug_mutex;
+uint32_t *nametable_debug_pixels = NULL;
 uint32_t pixels[(NES_HEIGHT * NES_WIDTH)]; // pixel buffer
 uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x940084FF, 0xA80020FF, 0xA81000FF, 0x881400FF, 0x503000FF, 0x007800FF, 0x006800FF, 0x005800FF, 0x004058FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xBCBCBCFF, 0x0078F8FF, 0x0058F8FF, 0x6844FCFF, 0xD800CCFF, 0xE40058FF, 0xF83800FF, 0xE45C10FF, 0xAC7C00FF, 0x00B800FF, 0x00A800FF, 0x00A844FF, 0x008888FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xF8F8F8FF, 0x3CBCFCFF, 0x6888FCFF, 0x9878F8FF, 0xF878F8FF, 0xF85898FF, 0xF87858FF, 0xFCA044FF, 0xF8B800FF, 0xB8F818FF, 0x58D854FF, 0x58F898FF, 0x00E8D8FF, 0x787878FF, 0x000000FF, 0x000000FF, 0xFCFCFCFF, 0xA4E4FCFF, 0xB8B8F8FF, 0xD8B8F8FF, 0xF8B8F8FF, 0xF8A4C0FF, 0xF0D0B0FF, 0xFCE0A8FF, 0xF8D878FF, 0xD8F878FF, 0xB8F8B8FF, 0xB8F8D8FF, 0x00FCFCFF, 0xF8D8F8FF, 0x000000FF, 0x000000FF};
 
@@ -58,6 +64,33 @@ uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x94
 
 void frame_ready() {
     cnd_signal(&frame_ready_condition);
+}
+
+void start_stop_nametable_debug() {
+    if (nametable_debug) { // start
+        nametable_debug_pixels = malloc(sizeof(uint32_t) * NES_WIDTH * 2 * NES_HEIGHT * 2);
+        mtx_init(&nametable_debug_mutex, mtx_plain);
+        
+        nametable_window = SDL_CreateWindow("Nametables", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, NES_WIDTH * 2, NES_HEIGHT * 2, SDL_WINDOW_ALLOW_HIGHDPI);
+        if (nametable_window == NULL) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window: %s", SDL_GetError());
+            return;
+        }
+        nametable_renderer = SDL_CreateRenderer(nametable_window, -1, SDL_RENDERER_ACCELERATED);
+        if (nametable_renderer == NULL) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s", SDL_GetError());
+            return;
+        }
+        nametable_texture = SDL_CreateTexture(nametable_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, NES_WIDTH * 2, NES_HEIGHT * 2);
+        SDL_SetRenderTarget(nametable_renderer, nametable_texture);
+        SDL_SetRenderDrawColor(nametable_renderer, 0x00, 255, 0x00, 0x00);
+        SDL_RenderClear(nametable_renderer);
+    } else { // stop
+        SDL_DestroyRenderer(nametable_renderer);
+        SDL_DestroyWindow(nametable_window);
+        SDL_DestroyTexture(nametable_texture);
+        free(nametable_debug_pixels);
+    }
 }
 
 void event_loop() {
@@ -99,6 +132,10 @@ void event_loop() {
                             break;
                         case SDLK_d:
                             debug = !debug;
+                            break;
+                        case SDLK_n:
+                            nametable_debug = !nametable_debug;
+                            start_stop_nametable_debug();
                             break;
                         default:
                             break;
@@ -160,6 +197,18 @@ void event_loop() {
         SDL_RenderCopy(renderer, texture, NULL, NULL); // blit texture
         SDL_RenderPresent(renderer);
         
+        if (nametable_debug) {
+            SDL_SetRenderDrawColor(nametable_renderer, 0, 0, 0, 255); // black
+            SDL_RenderClear(nametable_renderer);
+            mtx_lock(&nametable_debug_mutex);
+            //SDL_SetRenderTarget(renderer, texture);
+            SDL_UpdateTexture(nametable_texture, NULL, nametable_debug_pixels, NES_WIDTH * 4 * 2);
+            mtx_unlock(&nametable_debug_mutex);
+            SDL_SetRenderTarget(nametable_renderer, NULL);
+            SDL_RenderCopy(nametable_renderer, nametable_texture, NULL, NULL); // blit texture
+            SDL_RenderPresent(nametable_renderer);
+        }
+        
         //SDL_Delay(16);
         //printf("end drawing loop");
     }
@@ -188,6 +237,14 @@ void display_main_window(const char *title) {
     SDL_SetRenderTarget(renderer, texture);
     SDL_SetRenderDrawColor(renderer, 0x00, 255, 0x00, 0x00);
     SDL_RenderClear(renderer);
+}
+
+void draw_nametables_pixel(int x, int y, byte palette_entry) {
+    if (nametable_debug) {
+        mtx_lock(&nametable_debug_mutex);
+        nametable_debug_pixels[(x + y * NES_WIDTH * 2)] = nes_palette[palette_entry];
+        mtx_unlock(&nametable_debug_mutex);
+    }
 }
 
 void draw_pixel(int x, int y, byte palette_entry) {

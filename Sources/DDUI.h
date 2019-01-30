@@ -16,6 +16,7 @@
 #include "c11threads.h"
 #include "DDTypes.h"
 #include "DDInput.h"
+#include "DDPPU.h"
 
 #define NES_WIDTH 256
 #define NES_HEIGHT 240
@@ -23,6 +24,7 @@
 void event_loop(void);
 void frame_ready(void);
 void display_main_window(const char *title);
+void draw_nametables_pixel(int x, int y, byte palette_entry);
 void draw_pixel(int x, int y, byte palette_entry); //Uint8 r, Uint8 g, Uint8 b);
 void ui_cleanup(void);
 

@@ -67,6 +67,52 @@ void ppu_reset() {
 
 byte scanline_sprite_count = 0;
 bool sprite_zero_in_secondary = false;
+
+static void draw_nametables() {
+    for (int nametable = 0; nametable < 4; nametable++) {
+        word base_nametable_address = 0x2000 + 0x400 * nametable;
+        word base_attributetable_address = 0x2000 + 0x3C0 * nametable;
+        for (int y = 0; y < 30; y++) {
+            for (int x = 0; x < 32; x++) {
+                word tile_address = base_nametable_address + y * 0x20 + x;
+                byte nametable_entry = ppu_mem_read(tile_address);
+                int attrx = x / 4;
+                int attry = y / 4;
+                word attribute_address = base_attributetable_address + attry * 8 + attrx;
+                byte attribute_entry = ppu_mem_read(attribute_address);
+                int block = (y & 0x02) | ((x & 0x02) >> 1); // https://forums.nesdev.com/viewtopic.php?f=10&t=13315
+                byte attribute_bits = 0;
+                switch (block) {
+                    case 0:
+                        attribute_bits = (attribute_entry & 0b00000011) << 2;
+                        break;
+                    case 1:
+                        attribute_bits = (attribute_entry & 0b00001100);
+                        break;
+                    case 2:
+                        attribute_bits = (attribute_entry & 0b00110000) >> 2;
+                        break;
+                    case 3:
+                        attribute_bits = (attribute_entry & 0b11000000) >> 4;
+                        break;
+                    default:
+                        printf("Invalid block");
+                }
+                for (int fine_y = 0; fine_y < 8; fine_y++) {
+                    byte low_order = ppu_mem_read(BACKGROUND_PATTERN_TABLE_ADDRESS +  nametable_entry * 16 + fine_y);
+                    byte high_order = ppu_mem_read(BACKGROUND_PATTERN_TABLE_ADDRESS +  nametable_entry * 16 + 8 + fine_y);
+                    for (int fine_x = 0; fine_x < 8; fine_x++) {
+                        byte pixel = ((low_order >> (7 - fine_x)) & 1) | (((high_order >> (7 - fine_x)) & 1) << 1) | attribute_bits;
+                        
+                        draw_nametables_pixel(x * 8 + fine_x + ((nametable % 2 == 0) ? 0 : 256), y * 8 + fine_y + ((nametable < 2) ? 0 : 240), palette[pixel]);
+                    }
+                    
+                }
+            }
+        }
+    }
+}
+
 // figure out which sprites to draw and put them in secondary RAM
 // assume 8 x 8 sprites for now
 static void figure_out_sprites(int scanline) {
@@ -279,6 +325,9 @@ inline void ppu_step() {
         // clear PPU_STATUS ($2002 at dot 1 of the pre-render line
         if (scanline == 261 && cycle == 1) {
             PPU_STATUS &= 0b00011111;
+            if (nametable_debug) {
+                draw_nametables();
+            }
         }
         
         if (scanline == 261 && cycle >= 280 && cycle <= 304) { // copy y

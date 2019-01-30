@@ -29,5 +29,6 @@ extern Joypad joypad1;
 extern Joypad joypad2;
 
 extern bool debug;
+extern bool nametable_debug;
 
 #endif /* DDInput_h */
