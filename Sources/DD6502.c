@@ -853,6 +853,11 @@ void cpu_cycle() {
     
     if (!jumped) {
         PC += info.length;
+    } else { // we did jump
+        if (info.instruction == BCC || info.instruction == BCS || info.instruction == BEQ || info.instruction == BMI || info.instruction == BNE || info.instruction == BPL || info.instruction == BVC || info.instruction == BVS) {
+            // branch instructions are +1 ticks if they succeeded
+            CPU_TICK(1);
+        }
     }
     
     CPU_TICK(info.ticks);
