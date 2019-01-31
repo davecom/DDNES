@@ -230,13 +230,13 @@ inline void ppu_step() {
                 draw_sprite_pixel(cycle - 1, scanline, transparent_background);
             }
         }
-        if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle < 256) || (cycle >= 321 && cycle <= 336))) {
+        if ((scanline < 240 || scanline == 261) && ((cycle > 0 && cycle <= 256) || (cycle >= 321 && cycle <= 336))) {
             
             // prepare for next render
             tile_data <<= 4;
             switch (cycle % 8) {
                 case 1: // fetch name table byte (2 cycles)
-                    address = (0x2000 + NAME_TABLE_ADDRESS) | (V & 0x0FFF);
+                    address = 0x2000 | (V & 0x0FFF);
                     //printf("nt address is %x\n", address);
                     name_table_byte = ppu_mem_read(address);
                     break;
@@ -340,7 +340,7 @@ inline void ppu_step() {
         
     }
     
-    if (scanline == 241 && cycle == 0) {
+    if (scanline == 241 && cycle == 1) {
         
         //frame_ready();
         PPU_STATUS |= 0b10000000; // set vblank
@@ -489,9 +489,9 @@ static inline void ppu_mem_write(word address, byte value) {
     if (address < 0x2000) { // pattern tables
         rom->writeCartridge(address, value);
     } else if (address < 0x3F00) { // name tables
-        if (address >= 0x2000) {
-            printf("Writing %x at %x\n", value, address);
-        }
+//        if (address >= 0x2000) {
+//            printf("Writing %x at %x\n", value, address);
+//        }
         address = (address - 0x2000) % 0x1000; // 3000-3EFF is a mirror.;
         if (rom->verticalMirroring) {
             address = address % 0x0800;
