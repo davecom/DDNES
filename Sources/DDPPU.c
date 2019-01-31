@@ -71,7 +71,7 @@ bool sprite_zero_in_secondary = false;
 static void draw_nametables() {
     for (int nametable = 0; nametable < 4; nametable++) {
         word base_nametable_address = 0x2000 + 0x400 * nametable;
-        word base_attributetable_address = 0x2000 + 0x3C0 * nametable;
+        word base_attributetable_address = 0x2000 + 0x400 * nametable + 0x3C0;
         for (int y = 0; y < 30; y++) {
             for (int x = 0; x < 32; x++) {
                 word tile_address = base_nametable_address + y * 0x20 + x;
@@ -103,8 +103,12 @@ static void draw_nametables() {
                     byte high_order = ppu_mem_read(BACKGROUND_PATTERN_TABLE_ADDRESS +  nametable_entry * 16 + 8 + fine_y);
                     for (int fine_x = 0; fine_x < 8; fine_x++) {
                         byte pixel = ((low_order >> (7 - fine_x)) & 1) | (((high_order >> (7 - fine_x)) & 1) << 1) | attribute_bits;
-                        
-                        draw_nametables_pixel(x * 8 + fine_x + ((nametable % 2 == 0) ? 0 : 256), y * 8 + fine_y + ((nametable < 2) ? 0 : 240), palette[pixel]);
+                        int x_screen_loc = x * 8 + fine_x + ((nametable % 2 == 0) ? 0 : 256);
+                        int y_screen_loc = y * 8 + fine_y + ((nametable < 2) ? 0 : 240);
+                        bool transparent_background = (pixel & 3) == 0;
+                        // if the background is transparent, we use the first color
+                        // in the palette
+                        draw_nametables_pixel(x_screen_loc, y_screen_loc, transparent_background ? palette[0] : palette[pixel]);
                     }
                     
                 }
