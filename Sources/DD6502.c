@@ -428,7 +428,7 @@ int stall = 0;
 // for info on this, see https://wiki.nesdev.com/w/index.php/CPU_power_up_state
 void cpu_reset() {
     // clear memory
-    memset(&ram, MEM_SIZE, 0);
+    memset(ram, 0, MEM_SIZE);
     // reset stall
     stall = 0;
     // reset registers

@@ -51,9 +51,9 @@ byte palette[PALETTE_SIZE]; // pallete ram
 // for info on this, see http://wiki.nesdev.com/w/index.php/PPU_power_up_state
 void ppu_reset() {
     // clear memory
-    memset(&spr_ram, SPR_RAM_SIZE, 0);
-    memset(&nametables, NAMETABLE_SIZE, 0);
-    memset(&palette, PALETTE_SIZE, 0);
+    memset(spr_ram, 0, SPR_RAM_SIZE);
+    memset(nametables, 0, NAMETABLE_SIZE);
+    memset(palette, 0, PALETTE_SIZE);
     // reset registers
     PPU_CONTROL1 = 0;
     PPU_CONTROL2 = 0;
