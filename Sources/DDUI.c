@@ -176,9 +176,12 @@ void event_loop() {
             }
         }
         // clear renderer
+        // used to have this in but took it out and it seems to not
+        // have any negative effect
+        //SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // black
+        //SDL_RenderClear(renderer);
         
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // black
-        SDL_RenderClear(renderer);
+        
         // is there a pixel to draw?
 //        pixel_list *pixel = pop_pixel();
 //        while (pixel != NULL) {

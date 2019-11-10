@@ -14,6 +14,7 @@
 		556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFC1E4D6F0D00731450 /* DDROM.c */; };
 		556FCF011E4D8EAC00731450 /* DDTest.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFF1E4D8EAC00731450 /* DDTest.c */; };
 		556FCF031E4D944000731450 /* TestROMs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 556FCF021E4D929100731450 /* TestROMs */; };
+		558250462377F20600456BCB /* DDAPU.c in Sources */ = {isa = PBXBuildFile; fileRef = 558250452377F20600456BCB /* DDAPU.c */; };
 		558AC0811E3AC50D00B786DE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0801E3AC50D00B786DE /* main.c */; };
 		558AC0841E3B078800B786DE /* DD6502.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0821E3B078800B786DE /* DD6502.c */; };
 		55ECC5EA21F2FC85000A0976 /* DDInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 55ECC5E921F2FC85000A0976 /* DDInput.c */; };
@@ -45,6 +46,8 @@
 		556FCF001E4D8EAC00731450 /* DDTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTest.h; path = Sources/DDTest.h; sourceTree = "<group>"; };
 		556FCF021E4D929100731450 /* TestROMs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestROMs; sourceTree = "<group>"; };
 		5580EA9220F6A7F800FA9695 /* c11threads.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = c11threads.h; path = Sources/c11threads.h; sourceTree = "<group>"; };
+		558250442377F20600456BCB /* DDAPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DDAPU.h; path = Sources/DDAPU.h; sourceTree = "<group>"; };
+		558250452377F20600456BCB /* DDAPU.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DDAPU.c; path = Sources/DDAPU.c; sourceTree = "<group>"; };
 		558AC0741E3AC42200B786DE /* DDNES */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DDNES; sourceTree = BUILT_PRODUCTS_DIR; };
 		558AC0801E3AC50D00B786DE /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = Sources/main.c; sourceTree = "<group>"; };
 		558AC0821E3B078800B786DE /* DD6502.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DD6502.c; path = Sources/DD6502.c; sourceTree = "<group>"; };
@@ -81,6 +84,8 @@
 				558AC0801E3AC50D00B786DE /* main.c */,
 				558AC0821E3B078800B786DE /* DD6502.c */,
 				558AC0831E3B078800B786DE /* DD6502.h */,
+				558250452377F20600456BCB /* DDAPU.c */,
+				558250442377F20600456BCB /* DDAPU.h */,
 				556FCEFC1E4D6F0D00731450 /* DDROM.c */,
 				556FCEFD1E4D6F0D00731450 /* DDROM.h */,
 				5522A6FC1E6690CE001ECF64 /* DDPPU.c */,
@@ -171,6 +176,7 @@
 				5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */,
 				556FCF011E4D8EAC00731450 /* DDTest.c in Sources */,
 				558AC0841E3B078800B786DE /* DD6502.c in Sources */,
+				558250462377F20600456BCB /* DDAPU.c in Sources */,
 				558AC0811E3AC50D00B786DE /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -879,7 +879,9 @@ static inline byte read_memory(word data, mem_mode mode) {
         word temp = ((address % 8) | 0x2000); // get data from ppu register
         return read_ppu_register(temp);
     } else if (address <= 0x4017) { // APU and IO
-        if (address == 0x4016) { // byte representing configuration of first joypad        
+        if (address == 0x4015) { // APU Status
+            return read_apu_status();
+        } else if (address == 0x4016) { // byte representing configuration of first joypad
             if (joypad1.strobe) {
                 return joypad1.a;
             }
@@ -931,7 +933,9 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
         write_ppu_register(temp, value);
         return;
     } else if (address <= 0x4017) { // APU and IO
-        if (address == 0x4014) { // dma transfer of sprite data
+        if (address < 0x4014 || address == 0x4015 || address == 0x4017) {
+            
+        } else if (address == 0x4014) { // dma transfer of sprite data
             // we iteratively read incase there is a change from one type of memory to another
             word fromAddress = (value * 0x100); // this is the address to start copying from
             byte tempArray[SPR_RAM_SIZE]; // not the most efficient, but no direct ppu mem access here

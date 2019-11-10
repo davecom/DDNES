@@ -36,6 +36,8 @@ int emulate(void *data) {
         for (int j = 0; j < (difference * 3); j++) { // 3 ppu ticks for every 1 cpu tick
             ppu_step();
         }
+        
+        // pause if we are going too fast
         ticks_since_last_delay += difference;
         if ((ticks_since_last_delay * NANOSECONDS_PER_CPU_CYCLE) > NANOSECONDS_PER_FRAME) {
             uint32_t cur_time = SDL_GetTicks();
@@ -51,8 +53,6 @@ int emulate(void *data) {
             time = SDL_GetTicks();
             ticks_since_last_delay = 0;
         }
-        
-        // pause if we are going too fast
     }
     //unloadROM();
     return 0;

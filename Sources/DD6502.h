@@ -15,6 +15,7 @@
 #include "DDROM.h"
 #include "DDTypes.h"
 #include "DDPPU.h"
+#include "DDAPU.h"
 #include "DDInput.h"
 
 typedef enum {
