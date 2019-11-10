@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include "DDTypes.h"
 
-byte read_apu_status();
+byte read_apu_status(void);
 void write_apu_register(word address, byte value);
 
 #endif /* DDAPU_h */

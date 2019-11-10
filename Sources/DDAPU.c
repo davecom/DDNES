@@ -64,9 +64,17 @@ struct {
 } frame_counter;
 
 byte read_apu_status() {
-    return (0 | (dmc.irq_enable << 7) | (frame_counter.irq_inhibit << 6) |  ((dmc.sample_length > 0) << 4) | ((noise.length > 0) << 3) | ((triangle.length > 0) << 2) | ((pulse2.length > 0) << 1) | (pulse1.length > 0));
+    byte status = (0 | (dmc.irq_enable << 7) | (frame_counter.irq_inhibit << 6) |  ((dmc.sample_length > 0) << 4) | ((noise.length > 0) << 3) | ((triangle.length > 0) << 2) | ((pulse2.length > 0) << 1) | (pulse1.length > 0));
+    // "Reading this register clears the frame interrupt flag
+    // (but not the DMC interrupt flag)."
+    frame_counter.irq_inhibit = 0;
+    return status;
 }
 
 void write_apu_register(word address, byte value) {
     // switch on address; writing to appropriate places; break after each case
+    switch (address) {
+        default:
+            break;
+    }
 }
