@@ -445,6 +445,8 @@ void cpu_reset() {
     flags.b = false;
     flags.v = false;
     flags.n = false;
+    
+    apu_reset();
 }
 
 uint64_t instruction_count = 0;
@@ -934,7 +936,7 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
         return;
     } else if (address <= 0x4017) { // APU and IO
         if (address < 0x4014 || address == 0x4015 || address == 0x4017) {
-            
+            write_apu_register(address, value);
         } else if (address == 0x4014) { // dma transfer of sprite data
             // we iteratively read incase there is a change from one type of memory to another
             word fromAddress = (value * 0x100); // this is the address to start copying from

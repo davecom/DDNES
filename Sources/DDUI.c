@@ -222,9 +222,29 @@ void display_main_window(const char *title) {
     mtx_init(&pixel_list_mutex, mtx_plain);
     mtx_init(&frame_ready_mutex, mtx_plain);
     cnd_init(&frame_ready_condition);
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
         return;
+    }
+    // startup audio
+    SDL_AudioSpec want, have;
+
+    SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
+    want.freq = 44100;
+    want.format = AUDIO_F32;
+    want.channels = 1;
+    want.samples = 4096;
+    want.callback = NULL; // muse use queueaudio
+
+    if (SDL_OpenAudio(&want, &have) < 0) {
+        SDL_Log("Failed to open audio: %s", SDL_GetError());
+    } else {
+        if (have.format != want.format) {
+            SDL_Log("We didn't get Float32 audio format.");
+        }
+        SDL_PauseAudio(0); /* start audio playing. */
+        //SDL_Delay(5000); /* let the audio callback play some sound for 5 seconds. */
+        //SDL_CloseAudio();
     }
     window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, NES_WIDTH, NES_HEIGHT, SDL_WINDOW_ALLOW_HIGHDPI);
     if (window == NULL) {

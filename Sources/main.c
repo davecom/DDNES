@@ -37,6 +37,11 @@ int emulate(void *data) {
             ppu_step();
         }
         
+        // 1 apu tick for every cpu tick
+        for (int j = 0; j < difference; j++) {
+            apu_tick();
+        }
+        
         // pause if we are going too fast
         ticks_since_last_delay += difference;
         if ((ticks_since_last_delay * NANOSECONDS_PER_CPU_CYCLE) > NANOSECONDS_PER_FRAME) {

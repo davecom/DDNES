@@ -13,6 +13,8 @@
 
 //#define TEST
 
+#define CPU_FREQUENCY 1789773
+
 typedef uint8_t byte;
 typedef uint16_t word;
 
