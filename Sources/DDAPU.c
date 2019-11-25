@@ -155,7 +155,7 @@ float generate_pulse() {
     float p2t = (p1o + p2o);
     //return p2t;
     if (p2t <= 0.00001) { return 0.0; }
-    float pulse_out = 95.88 / ((8128 / p2t) + 100);
+    float pulse_out = 95.88 / ((float)(8128 / p2t) + 100);
     return pulse_out;
 }
 
@@ -173,11 +173,12 @@ void tick_pulse(struct pulse *p) {
 
 uint64_t apu_ticks;
 
+extern int audio_buffer_length;
+extern float audio_buffer[1024];
+extern int audio_buffer_place;
 
 void apu_tick() {
-    static int buffer_length = 100;
-    static float buffer[1024];
-    static int buffer_place = 0;
+    
     if (apu_ticks % 2 == 0) { // every other cpu tick
         
         
@@ -188,14 +189,11 @@ void apu_tick() {
 //        if (po > 0.05) {
 //            printf("generated po of %f", po);
 //        }
-        buffer[buffer_place] = po;
-        buffer_place++;
-        if (buffer_place == buffer_length) {
-            SDL_QueueAudio(1, buffer, buffer_length * 4);
-            buffer_place = 0;
-        }
+//        audio_buffer[audio_buffer_place] = po;
+//        audio_buffer_place++;
+        addAudioToBuffer(po);
     }
-    
+
     
     if (apu_ticks % 7457 == 0) { // new frame count
         

@@ -12,8 +12,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+<<<<<<< HEAD
+#include <math.h>
+=======
+// Apple OSX and iOS (Darwin)
+#if defined(__APPLE__) && defined(__MACH__)
+>>>>>>> 043f363506922437640979ae94155b84901c9d4e
 #include <SDL2/SDL.h>
-#include "c11threads.h"
+#else 
+#include <SDL.h>
+#endif
+#include "tinycthread.h"
 #include "DDTypes.h"
 #include "DDInput.h"
 #include "DDPPU.h"
@@ -26,6 +35,7 @@ void frame_ready(void);
 void display_main_window(const char *title);
 void draw_nametables_pixel(int x, int y, byte palette_entry);
 void draw_pixel(int x, int y, byte palette_entry); //Uint8 r, Uint8 g, Uint8 b);
+void addAudioToBuffer(float a);
 void ui_cleanup(void);
 
 #endif /* DDUI_h */

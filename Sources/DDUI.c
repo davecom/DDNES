@@ -31,6 +31,7 @@ mtx_t pixel_list_mutex;
 mtx_t frame_ready_mutex;
 cnd_t frame_ready_condition;
 mtx_t nametable_debug_mutex;
+mtx_t audio_mutex;
 uint32_t *nametable_debug_pixels = NULL;
 uint32_t pixels[(NES_HEIGHT * NES_WIDTH)]; // pixel buffer
 uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x940084FF, 0xA80020FF, 0xA81000FF, 0x881400FF, 0x503000FF, 0x007800FF, 0x006800FF, 0x005800FF, 0x004058FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xBCBCBCFF, 0x0078F8FF, 0x0058F8FF, 0x6844FCFF, 0xD800CCFF, 0xE40058FF, 0xF83800FF, 0xE45C10FF, 0xAC7C00FF, 0x00B800FF, 0x00A800FF, 0x00A844FF, 0x008888FF, 0x000000FF, 0x000000FF, 0x000000FF, 0xF8F8F8FF, 0x3CBCFCFF, 0x6888FCFF, 0x9878F8FF, 0xF878F8FF, 0xF85898FF, 0xF87858FF, 0xFCA044FF, 0xF8B800FF, 0xB8F818FF, 0x58D854FF, 0x58F898FF, 0x00E8D8FF, 0x787878FF, 0x000000FF, 0x000000FF, 0xFCFCFCFF, 0xA4E4FCFF, 0xB8B8F8FF, 0xD8B8F8FF, 0xF8B8F8FF, 0xF8A4C0FF, 0xF0D0B0FF, 0xFCE0A8FF, 0xF8D878FF, 0xD8F878FF, 0xB8F8B8FF, 0xB8F8D8FF, 0x00FCFCFF, 0xF8D8F8FF, 0x000000FF, 0x000000FF};
@@ -91,6 +92,42 @@ void start_stop_nametable_debug() {
         SDL_DestroyTexture(nametable_texture);
         free(nametable_debug_pixels);
     }
+}
+
+int audio_buffer_length = 2147483647;
+float audio_buffer[2147483647];
+int audio_buffer_place = 0;
+
+void addAudioToBuffer(float a) {
+    mtx_lock(&audio_mutex);
+    audio_buffer[audio_buffer_place] = a;
+    audio_buffer_place++;
+    if (audio_buffer_place >= audio_buffer_length) {
+        audio_buffer_place = 0;
+    }
+    mtx_unlock(&audio_mutex);
+}
+
+#ifndef max
+    #define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
+void audio_call_back(void*  userdata,
+Uint8* stream,
+                     int    len) {
+    mtx_lock(&audio_mutex);
+    //if (audio_buffer_place == audio_buffer_length) {
+    stream = malloc(len);
+    memset(stream, 0, len);
+    float *fstream = (float *)stream;
+    //printf("requested %d bytes\n", len);
+    for (int i = 0; i < (len / 4); i++) {
+        fstream[i] = audio_buffer[i];
+    }
+    
+    audio_buffer_place = max(audio_buffer_place - len, 0);
+    //}
+    mtx_unlock(&audio_mutex);
 }
 
 void event_loop() {
@@ -212,16 +249,29 @@ void event_loop() {
             SDL_RenderPresent(nametable_renderer);
         }
         
+//        mtx_lock(&audio_mutex);
+//        //if (audio_buffer_place == audio_buffer_length) {
+//
+//            if (SDL_QueueAudio(1, audio_buffer, audio_buffer_place * 4) != 0) {
+//                SDL_Log("Error queueing audio: %s", SDL_GetError());
+//            }
+//            audio_buffer_place = 0;
+//        //}
+//        mtx_unlock(&audio_mutex);
+        
         //SDL_Delay(16);
         //printf("end drawing loop");
     }
     ui_cleanup();
 }
 
+
+
 void display_main_window(const char *title) {
     mtx_init(&pixel_list_mutex, mtx_plain);
     mtx_init(&frame_ready_mutex, mtx_plain);
     cnd_init(&frame_ready_condition);
+    mtx_init(&audio_mutex, mtx_plain);
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
         return;
@@ -233,10 +283,10 @@ void display_main_window(const char *title) {
     want.freq = 44100;
     want.format = AUDIO_F32;
     want.channels = 1;
-    want.samples = 4096;
-    want.callback = NULL; // muse use queueaudio
+    want.samples = 512;
+    want.callback = audio_call_back; // muse use queueaudio
 
-    if (SDL_OpenAudio(&want, &have) < 0) {
+    if (SDL_OpenAudio(&want, &have) != 0) {
         SDL_Log("Failed to open audio: %s", SDL_GetError());
     } else {
         if (have.format != want.format) {

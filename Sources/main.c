@@ -10,12 +10,13 @@
 #include <stdint.h>
 // temporary until clang supports <threads.h>
 // from the c11 standard
-#include "c11threads.h"
+#include "tinycthread.h"
 #include "DDROM.h"
 #include "DD6502.h"
 #include "DDTest.h"
 #include "DDTypes.h"
 #include "DDUI.h"
+#include "DDPPU.h"
 
 #define NANOSECONDS_PER_CPU_CYCLE 559 // 559 for every 1 CPU cycle
 #define NANOSECONDS_PER_FRAME 16666666
@@ -63,7 +64,7 @@ int emulate(void *data) {
     return 0;
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, char * argv[]) {
     // printf("Hello, World! %.4X\n", 84 << 0 | 85 << 8);
 
     #ifdef TEST // if we're testing run the tests
