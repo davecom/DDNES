@@ -12,12 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-<<<<<<< HEAD
-#include <math.h>
-=======
 // Apple OSX and iOS (Darwin)
 #if defined(__APPLE__) && defined(__MACH__)
->>>>>>> 043f363506922437640979ae94155b84901c9d4e
 #include <SDL2/SDL.h>
 #else 
 #include <SDL.h>
