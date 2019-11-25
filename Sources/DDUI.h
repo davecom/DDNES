@@ -12,8 +12,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+// Apple OSX and iOS (Darwin)
+#if defined(__APPLE__) && defined(__MACH__)
 #include <SDL2/SDL.h>
-#include "c11threads.h"
+#else 
+#include <SDL.h>
+#endif
+#include "tinycthread.h"
 #include "DDTypes.h"
 #include "DDInput.h"
 #include "DDPPU.h"

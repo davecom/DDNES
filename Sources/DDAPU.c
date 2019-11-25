@@ -155,7 +155,7 @@ float generate_pulse() {
     float p2t = (p1o + p2o);
     //return p2t;
     if (p2t <= 0.00001) { return 0.0; }
-    float pulse_out = 95.88 / ((8128 / p2t) + 100);
+    float pulse_out = 95.88 / ((float)(8128 / p2t) + 100);
     return pulse_out;
 }
 

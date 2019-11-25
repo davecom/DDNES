@@ -204,7 +204,7 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
 
 // Based on https://wiki.nesdev.com/w/index.php/PPU_scrolling
 // and https://github.com/fogleman/nes/blob/master/nes/ppu.go
-inline void ppu_step() {
+void ppu_step() {
     static int scanline = 0;
     static int cycle = 0;
     static byte name_table_byte = 0;

@@ -162,11 +162,11 @@ instruction_info instructions[256] = {
     {ORA, "ORA", IMMEDIATE, 2, 2, 0}, 			// 09
     {ASL, "ASL", ACCUMULATOR, 1, 2, 0}, 		// 0a
     {ANC, "ANC", IMMEDIATE, 0, 2, 0}, 			// 0b
-    {NOP, "NOP", ABSOLUTE, 3, 4, 0}, 			// 0c
-    {ORA, "ORA", ABSOLUTE, 3, 4, 0}, 			// 0d
-    {ASL, "ASL", ABSOLUTE, 3, 6, 0}, 			// 0e
-    {SLO, "SLO", ABSOLUTE, 0, 6, 0}, 			// 0f
-    {BPL, "BPL", RELATIVE, 2, 2, 1}, 			// 10
+    {NOP, "NOP", ABSOLUTEDD, 3, 4, 0}, 			// 0c
+    {ORA, "ORA", ABSOLUTEDD, 3, 4, 0}, 			// 0d
+    {ASL, "ASL", ABSOLUTEDD, 3, 6, 0}, 			// 0e
+    {SLO, "SLO", ABSOLUTEDD, 0, 6, 0}, 			// 0f
+    {BPL, "BPL", RELATIVEDD, 2, 2, 1}, 			// 10
     {ORA, "ORA", INDIRECT_INDEXED, 2, 5, 1}, 	// 11
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 12
     {SLO, "SLO", INDIRECT_INDEXED, 0, 8, 0}, 	// 13
@@ -175,14 +175,14 @@ instruction_info instructions[256] = {
     {ASL, "ASL", ZEROPAGE_X, 2, 6, 0}, 			// 16
     {SLO, "SLO", ZEROPAGE_X, 0, 6, 0}, 			// 17
     {CLC, "CLC", IMPLIED, 1, 2, 0}, 			// 18
-    {ORA, "ORA", ABSOLUTE_Y, 3, 4, 1}, 			// 19
+    {ORA, "ORA", ABSOLUTEDD_Y, 3, 4, 1}, 			// 19
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 1a
-    {SLO, "SLO", ABSOLUTE_Y, 0, 7, 0}, 			// 1b
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 1c
-    {ORA, "ORA", ABSOLUTE_X, 3, 4, 1}, 			// 1d
-    {ASL, "ASL", ABSOLUTE_X, 3, 7, 0}, 			// 1e
-    {SLO, "SLO", ABSOLUTE_X, 0, 7, 0}, 			// 1f
-    {JSR, "JSR", ABSOLUTE, 3, 6, 0}, 			// 20
+    {SLO, "SLO", ABSOLUTEDD_Y, 0, 7, 0}, 			// 1b
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// 1c
+    {ORA, "ORA", ABSOLUTEDD_X, 3, 4, 1}, 			// 1d
+    {ASL, "ASL", ABSOLUTEDD_X, 3, 7, 0}, 			// 1e
+    {SLO, "SLO", ABSOLUTEDD_X, 0, 7, 0}, 			// 1f
+    {JSR, "JSR", ABSOLUTEDD, 3, 6, 0}, 			// 20
     {AND, "AND", INDEXED_INDIRECT, 2, 6, 0}, 	// 21
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 22
     {RLA, "RLA", INDEXED_INDIRECT, 0, 8, 0}, 	// 23
@@ -194,11 +194,11 @@ instruction_info instructions[256] = {
     {AND, "AND", IMMEDIATE, 2, 2, 0}, 			// 29
     {ROL, "ROL", ACCUMULATOR, 1, 2, 0},         // 2a
     {ANC, "ANC", IMMEDIATE, 0, 2, 0}, 			// 2b
-    {BIT, "BIT", ABSOLUTE, 3, 4, 0}, 			// 2c
-    {AND, "AND", ABSOLUTE, 3, 4, 0}, 			// 2d
-    {ROL, "ROL", ABSOLUTE, 3, 6, 0}, 			// 2e
-    {RLA, "RLA", ABSOLUTE, 0, 6, 0}, 			// 2f
-    {BMI, "BMI", RELATIVE, 2, 2, 1}, 			// 30
+    {BIT, "BIT", ABSOLUTEDD, 3, 4, 0}, 			// 2c
+    {AND, "AND", ABSOLUTEDD, 3, 4, 0}, 			// 2d
+    {ROL, "ROL", ABSOLUTEDD, 3, 6, 0}, 			// 2e
+    {RLA, "RLA", ABSOLUTEDD, 0, 6, 0}, 			// 2f
+    {BMI, "BMI", RELATIVEDD, 2, 2, 1}, 			// 30
     {AND, "AND", INDIRECT_INDEXED, 2, 5, 1}, 	// 31
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 32
     {RLA, "RLA", INDIRECT_INDEXED, 0, 8, 0}, 	// 33
@@ -207,13 +207,13 @@ instruction_info instructions[256] = {
     {ROL, "ROL", ZEROPAGE_X, 2, 6, 0}, 			// 36
     {RLA, "RLA", ZEROPAGE_X, 0, 6, 0}, 			// 37
     {SEC, "SEC", IMPLIED, 1, 2, 0}, 			// 38
-    {AND, "AND", ABSOLUTE_Y, 3, 4, 1}, 			// 39
+    {AND, "AND", ABSOLUTEDD_Y, 3, 4, 1}, 			// 39
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 3a
-    {RLA, "RLA", ABSOLUTE_Y, 0, 7, 0}, 			// 3b
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 3c
-    {AND, "AND", ABSOLUTE_X, 3, 4, 1}, 			// 3d
-    {ROL, "ROL", ABSOLUTE_X, 3, 7, 0}, 			// 3e
-    {RLA, "RLA", ABSOLUTE_X, 0, 7, 0}, 			// 3f
+    {RLA, "RLA", ABSOLUTEDD_Y, 0, 7, 0}, 			// 3b
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// 3c
+    {AND, "AND", ABSOLUTEDD_X, 3, 4, 1}, 			// 3d
+    {ROL, "ROL", ABSOLUTEDD_X, 3, 7, 0}, 			// 3e
+    {RLA, "RLA", ABSOLUTEDD_X, 0, 7, 0}, 			// 3f
     {RTI, "RTI", IMPLIED, 1, 6, 0}, 			// 40
     {EOR, "EOR", INDEXED_INDIRECT, 2, 6, 0}, 	// 41
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 42
@@ -226,11 +226,11 @@ instruction_info instructions[256] = {
     {EOR, "EOR", IMMEDIATE, 2, 2, 0}, 			// 49
     {LSR, "LSR", ACCUMULATOR, 1, 2, 0},         // 4a
     {ALR, "ALR", IMMEDIATE, 0, 2, 0}, 			// 4b
-    {JMP, "JMP", ABSOLUTE, 3, 3, 0}, 			// 4c
-    {EOR, "EOR", ABSOLUTE, 3, 4, 0}, 			// 4d
-    {LSR, "LSR", ABSOLUTE, 3, 6, 0}, 			// 4e
-    {SRE, "SRE", ABSOLUTE, 0, 6, 0}, 			// 4f
-    {BVC, "BVC", RELATIVE, 2, 2, 1}, 			// 50
+    {JMP, "JMP", ABSOLUTEDD, 3, 3, 0}, 			// 4c
+    {EOR, "EOR", ABSOLUTEDD, 3, 4, 0}, 			// 4d
+    {LSR, "LSR", ABSOLUTEDD, 3, 6, 0}, 			// 4e
+    {SRE, "SRE", ABSOLUTEDD, 0, 6, 0}, 			// 4f
+    {BVC, "BVC", RELATIVEDD, 2, 2, 1}, 			// 50
     {EOR, "EOR", INDIRECT_INDEXED, 2, 5, 1}, 	// 51
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 52
     {SRE, "SRE", INDIRECT_INDEXED, 0, 8, 0}, 	// 53
@@ -239,13 +239,13 @@ instruction_info instructions[256] = {
     {LSR, "LSR", ZEROPAGE_X, 2, 6, 0}, 			// 56
     {SRE, "SRE", ZEROPAGE_X, 0, 6, 0}, 			// 57
     {CLI, "CLI", IMPLIED, 1, 2, 0}, 			// 58
-    {EOR, "EOR", ABSOLUTE_Y, 3, 4, 1}, 			// 59
+    {EOR, "EOR", ABSOLUTEDD_Y, 3, 4, 1}, 			// 59
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 5a
-    {SRE, "SRE", ABSOLUTE_Y, 0, 7, 0}, 			// 5b
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 5c
-    {EOR, "EOR", ABSOLUTE_X, 3, 4, 1}, 			// 5d
-    {LSR, "LSR", ABSOLUTE_X, 3, 7, 0}, 			// 5e
-    {SRE, "SRE", ABSOLUTE_X, 0, 7, 0}, 			// 5f
+    {SRE, "SRE", ABSOLUTEDD_Y, 0, 7, 0}, 			// 5b
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// 5c
+    {EOR, "EOR", ABSOLUTEDD_X, 3, 4, 1}, 			// 5d
+    {LSR, "LSR", ABSOLUTEDD_X, 3, 7, 0}, 			// 5e
+    {SRE, "SRE", ABSOLUTEDD_X, 0, 7, 0}, 			// 5f
     {RTS, "RTS", IMPLIED, 1, 6, 0}, 			// 60
     {ADC, "ADC", INDEXED_INDIRECT, 2, 6, 0}, 	// 61
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 62
@@ -259,10 +259,10 @@ instruction_info instructions[256] = {
     {ROR, "ROR", ACCUMULATOR, 1, 2, 0}, 		// 6a
     {ARR, "ARR", IMMEDIATE, 0, 2, 0}, 			// 6b
     {JMP, "JMP", INDIRECT, 3, 5, 0}, 			// 6c
-    {ADC, "ADC", ABSOLUTE, 3, 4, 0}, 			// 6d
-    {ROR, "ROR", ABSOLUTE, 3, 6, 0}, 			// 6e
-    {RRA, "RRA", ABSOLUTE, 0, 6, 0}, 			// 6f
-    {BVS, "BVS", RELATIVE, 2, 2, 1}, 			// 70
+    {ADC, "ADC", ABSOLUTEDD, 3, 4, 0}, 			// 6d
+    {ROR, "ROR", ABSOLUTEDD, 3, 6, 0}, 			// 6e
+    {RRA, "RRA", ABSOLUTEDD, 0, 6, 0}, 			// 6f
+    {BVS, "BVS", RELATIVEDD, 2, 2, 1}, 			// 70
     {ADC, "ADC", INDIRECT_INDEXED, 2, 5, 1}, 	// 71
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 72
     {RRA, "RRA", INDIRECT_INDEXED, 0, 8, 0}, 	// 73
@@ -271,13 +271,13 @@ instruction_info instructions[256] = {
     {ROR, "ROR", ZEROPAGE_X, 2, 6, 0}, 			// 76
     {RRA, "RRA", ZEROPAGE_X, 0, 6, 0}, 			// 77
     {SEI, "SEI", IMPLIED, 1, 2, 0}, 			// 78
-    {ADC, "ADC", ABSOLUTE_Y, 3, 4, 1}, 			// 79
+    {ADC, "ADC", ABSOLUTEDD_Y, 3, 4, 1}, 			// 79
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// 7a
-    {RRA, "RRA", ABSOLUTE_Y, 0, 7, 0}, 			// 7b
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// 7c
-    {ADC, "ADC", ABSOLUTE_X, 3, 4, 1}, 			// 7d
-    {ROR, "ROR", ABSOLUTE_X, 3, 7, 0}, 			// 7e
-    {RRA, "RRA", ABSOLUTE_X, 0, 7, 0}, 			// 7f
+    {RRA, "RRA", ABSOLUTEDD_Y, 0, 7, 0}, 			// 7b
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// 7c
+    {ADC, "ADC", ABSOLUTEDD_X, 3, 4, 1}, 			// 7d
+    {ROR, "ROR", ABSOLUTEDD_X, 3, 7, 0}, 			// 7e
+    {RRA, "RRA", ABSOLUTEDD_X, 0, 7, 0}, 			// 7f
     {NOP, "NOP", IMMEDIATE, 2, 2, 0}, 			// 80
     {STA, "STA", INDEXED_INDIRECT, 2, 6, 0}, 	// 81
     {NOP, "NOP", IMMEDIATE, 0, 2, 0}, 			// 82
@@ -290,11 +290,11 @@ instruction_info instructions[256] = {
     {NOP, "NOP", IMMEDIATE, 0, 2, 0}, 			// 89
     {TXA, "TXA", IMPLIED, 1, 2, 0}, 			// 8a
     {XAA, "XAA", IMMEDIATE, 0, 2, 0}, 			// 8b
-    {STY, "STY", ABSOLUTE, 3, 4, 0}, 			// 8c
-    {STA, "STA", ABSOLUTE, 3, 4, 0}, 			// 8d
-    {STX, "STX", ABSOLUTE, 3, 4, 0}, 			// 8e
-    {SAX, "SAX", ABSOLUTE, 0, 4, 0}, 			// 8f
-    {BCC, "BCC", RELATIVE, 2, 2, 1}, 			// 90
+    {STY, "STY", ABSOLUTEDD, 3, 4, 0}, 			// 8c
+    {STA, "STA", ABSOLUTEDD, 3, 4, 0}, 			// 8d
+    {STX, "STX", ABSOLUTEDD, 3, 4, 0}, 			// 8e
+    {SAX, "SAX", ABSOLUTEDD, 0, 4, 0}, 			// 8f
+    {BCC, "BCC", RELATIVEDD, 2, 2, 1}, 			// 90
     {STA, "STA", INDIRECT_INDEXED, 2, 6, 0}, 	// 91
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// 92
     {AHX, "AHX", INDIRECT_INDEXED, 0, 6, 0}, 	// 93
@@ -303,13 +303,13 @@ instruction_info instructions[256] = {
     {STX, "STX", ZEROPAGE_Y, 2, 4, 0}, 			// 96
     {SAX, "SAX", ZEROPAGE_Y, 0, 4, 0}, 			// 97
     {TYA, "TYA", IMPLIED, 1, 2, 0}, 			// 98
-    {STA, "STA", ABSOLUTE_Y, 3, 5, 0}, 			// 99
+    {STA, "STA", ABSOLUTEDD_Y, 3, 5, 0}, 			// 99
     {TXS, "TXS", IMPLIED, 1, 2, 0}, 			// 9a
-    {TAS, "TAS", ABSOLUTE_Y, 0, 5, 0}, 			// 9b
-    {SHY, "SHY", ABSOLUTE_X, 0, 5, 0}, 			// 9c
-    {STA, "STA", ABSOLUTE_X, 3, 5, 0}, 			// 9d
-    {SHX, "SHX", ABSOLUTE_Y, 0, 5, 0}, 			// 9e
-    {AHX, "AHX", ABSOLUTE_Y, 0, 5, 0}, 			// 9f
+    {TAS, "TAS", ABSOLUTEDD_Y, 0, 5, 0}, 			// 9b
+    {SHY, "SHY", ABSOLUTEDD_X, 0, 5, 0}, 			// 9c
+    {STA, "STA", ABSOLUTEDD_X, 3, 5, 0}, 			// 9d
+    {SHX, "SHX", ABSOLUTEDD_Y, 0, 5, 0}, 			// 9e
+    {AHX, "AHX", ABSOLUTEDD_Y, 0, 5, 0}, 			// 9f
     {LDY, "LDY", IMMEDIATE, 2, 2, 0}, 			// a0
     {LDA, "LDA", INDEXED_INDIRECT, 2, 6, 0}, 	// a1
     {LDX, "LDX", IMMEDIATE, 2, 2, 0}, 			// a2
@@ -322,11 +322,11 @@ instruction_info instructions[256] = {
     {LDA, "LDA", IMMEDIATE, 2, 2, 0}, 			// a9
     {TAX, "TAX", IMPLIED, 1, 2, 0}, 			// aa
     {LAX, "LAX", IMMEDIATE, 0, 2, 0}, 			// ab
-    {LDY, "LDY", ABSOLUTE, 3, 4, 0}, 			// ac
-    {LDA, "LDA", ABSOLUTE, 3, 4, 0}, 			// ad
-    {LDX, "LDX", ABSOLUTE, 3, 4, 0}, 			// ae
-    {LAX, "LAX", ABSOLUTE, 0, 4, 0}, 			// af
-    {BCS, "BCS", RELATIVE, 2, 2, 1}, 			// b0
+    {LDY, "LDY", ABSOLUTEDD, 3, 4, 0}, 			// ac
+    {LDA, "LDA", ABSOLUTEDD, 3, 4, 0}, 			// ad
+    {LDX, "LDX", ABSOLUTEDD, 3, 4, 0}, 			// ae
+    {LAX, "LAX", ABSOLUTEDD, 0, 4, 0}, 			// af
+    {BCS, "BCS", RELATIVEDD, 2, 2, 1}, 			// b0
     {LDA, "LDA", INDIRECT_INDEXED, 2, 5, 1}, 	// b1
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// b2
     {LAX, "LAX", INDIRECT_INDEXED, 0, 5, 1}, 	// b3
@@ -335,13 +335,13 @@ instruction_info instructions[256] = {
     {LDX, "LDX", ZEROPAGE_Y, 2, 4, 0}, 			// b6
     {LAX, "LAX", ZEROPAGE_Y, 0, 4, 0}, 			// b7
     {CLV, "CLV", IMPLIED, 1, 2, 0}, 			// b8
-    {LDA, "LDA", ABSOLUTE_Y, 3, 4, 1}, 			// b9
+    {LDA, "LDA", ABSOLUTEDD_Y, 3, 4, 1}, 			// b9
     {TSX, "TSX", IMPLIED, 1, 2, 0}, 			// ba
-    {LAS, "LAS", ABSOLUTE_Y, 0, 4, 1}, 			// bb
-    {LDY, "LDY", ABSOLUTE_X, 3, 4, 1}, 			// bc
-    {LDA, "LDA", ABSOLUTE_X, 3, 4, 1}, 			// bd
-    {LDX, "LDX", ABSOLUTE_Y, 3, 4, 1}, 			// be
-    {LAX, "LAX", ABSOLUTE_Y, 0, 4, 1}, 			// bf
+    {LAS, "LAS", ABSOLUTEDD_Y, 0, 4, 1}, 			// bb
+    {LDY, "LDY", ABSOLUTEDD_X, 3, 4, 1}, 			// bc
+    {LDA, "LDA", ABSOLUTEDD_X, 3, 4, 1}, 			// bd
+    {LDX, "LDX", ABSOLUTEDD_Y, 3, 4, 1}, 			// be
+    {LAX, "LAX", ABSOLUTEDD_Y, 0, 4, 1}, 			// bf
     {CPY, "CPY", IMMEDIATE, 2, 2, 0}, 			// c0
     {CMP, "CMP", INDEXED_INDIRECT, 2, 6, 0}, 	// c1
     {NOP, "NOP", IMMEDIATE, 0, 2, 0}, 			// c2
@@ -354,11 +354,11 @@ instruction_info instructions[256] = {
     {CMP, "CMP", IMMEDIATE, 2, 2, 0}, 			// c9
     {DEX, "DEX", IMPLIED, 1, 2, 0}, 			// ca
     {AXS, "AXS", IMMEDIATE, 0, 2, 0}, 			// cb
-    {CPY, "CPY", ABSOLUTE, 3, 4, 0}, 			// cc
-    {CMP, "CMP", ABSOLUTE, 3, 4, 0}, 			// cd
-    {DEC, "DEC", ABSOLUTE, 3, 6, 0}, 			// ce
-    {DCP, "DCP", ABSOLUTE, 0, 6, 0}, 			// cf
-    {BNE, "BNE", RELATIVE, 2, 2, 1}, 			// d0
+    {CPY, "CPY", ABSOLUTEDD, 3, 4, 0}, 			// cc
+    {CMP, "CMP", ABSOLUTEDD, 3, 4, 0}, 			// cd
+    {DEC, "DEC", ABSOLUTEDD, 3, 6, 0}, 			// ce
+    {DCP, "DCP", ABSOLUTEDD, 0, 6, 0}, 			// cf
+    {BNE, "BNE", RELATIVEDD, 2, 2, 1}, 			// d0
     {CMP, "CMP", INDIRECT_INDEXED, 2, 5, 1}, 	// d1
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// d2
     {DCP, "DCP", INDIRECT_INDEXED, 0, 8, 0}, 	// d3
@@ -367,13 +367,13 @@ instruction_info instructions[256] = {
     {DEC, "DEC", ZEROPAGE_X, 2, 6, 0}, 			// d6
     {DCP, "DCP", ZEROPAGE_X, 0, 6, 0}, 			// d7
     {CLD, "CLD", IMPLIED, 1, 2, 0}, 			// d8
-    {CMP, "CMP", ABSOLUTE_Y, 3, 4, 1}, 			// d9
+    {CMP, "CMP", ABSOLUTEDD_Y, 3, 4, 1}, 			// d9
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// da
-    {DCP, "DCP", ABSOLUTE_Y, 0, 7, 0}, 			// db
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// dc
-    {CMP, "CMP", ABSOLUTE_X, 3, 4, 1}, 			// dd
-    {DEC, "DEC", ABSOLUTE_X, 3, 7, 0}, 			// de
-    {DCP, "DCP", ABSOLUTE_X, 0, 7, 0}, 			// df
+    {DCP, "DCP", ABSOLUTEDD_Y, 0, 7, 0}, 			// db
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// dc
+    {CMP, "CMP", ABSOLUTEDD_X, 3, 4, 1}, 			// dd
+    {DEC, "DEC", ABSOLUTEDD_X, 3, 7, 0}, 			// de
+    {DCP, "DCP", ABSOLUTEDD_X, 0, 7, 0}, 			// df
     {CPX, "CPX", IMMEDIATE, 2, 2, 0}, 			// e0
     {SBC, "SBC", INDEXED_INDIRECT, 2, 6, 0}, 	// e1
     {NOP, "NOP", IMMEDIATE, 0, 2, 0}, 			// e2
@@ -386,11 +386,11 @@ instruction_info instructions[256] = {
     {SBC, "SBC", IMMEDIATE, 2, 2, 0}, 			// e9
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// ea
     {SBC, "SBC", IMMEDIATE, 0, 2, 0}, 			// eb
-    {CPX, "CPX", ABSOLUTE, 3, 4, 0}, 			// ec
-    {SBC, "SBC", ABSOLUTE, 3, 4, 0}, 			// ed
-    {INC, "INC", ABSOLUTE, 3, 6, 0}, 			// ee
-    {ISC, "ISC", ABSOLUTE, 0, 6, 0}, 			// ef
-    {BEQ, "BEQ", RELATIVE, 2, 2, 1}, 			// f0
+    {CPX, "CPX", ABSOLUTEDD, 3, 4, 0}, 			// ec
+    {SBC, "SBC", ABSOLUTEDD, 3, 4, 0}, 			// ed
+    {INC, "INC", ABSOLUTEDD, 3, 6, 0}, 			// ee
+    {ISC, "ISC", ABSOLUTEDD, 0, 6, 0}, 			// ef
+    {BEQ, "BEQ", RELATIVEDD, 2, 2, 1}, 			// f0
     {SBC, "SBC", INDIRECT_INDEXED, 2, 5, 1}, 	// f1
     {KIL, "KIL", IMPLIED, 0, 2, 0}, 			// f2
     {ISC, "ISC", INDIRECT_INDEXED, 0, 8, 0}, 	// f3
@@ -399,16 +399,16 @@ instruction_info instructions[256] = {
     {INC, "INC", ZEROPAGE_X, 2, 6, 0}, 			// f6
     {ISC, "ISC", ZEROPAGE_X, 0, 6, 0}, 			// f7
     {SED, "SED", IMPLIED, 1, 2, 0}, 			// f8
-    {SBC, "SBC", ABSOLUTE_Y, 3, 4, 1}, 			// f9
+    {SBC, "SBC", ABSOLUTEDD_Y, 3, 4, 1}, 			// f9
     {NOP, "NOP", IMPLIED, 1, 2, 0}, 			// fa
-    {ISC, "ISC", ABSOLUTE_Y, 0, 7, 0}, 			// fb
-    {NOP, "NOP", ABSOLUTE_X, 3, 4, 1}, 			// fc
-    {SBC, "SBC", ABSOLUTE_X, 3, 4, 1}, 			// fd
-    {INC, "INC", ABSOLUTE_X, 3, 7, 0}, 			// fe
-    {ISC, "ISC", ABSOLUTE_X, 0, 7, 0}, 			// ff
+    {ISC, "ISC", ABSOLUTEDD_Y, 0, 7, 0}, 			// fb
+    {NOP, "NOP", ABSOLUTEDD_X, 3, 4, 1}, 			// fc
+    {SBC, "SBC", ABSOLUTEDD_X, 3, 4, 1}, 			// fd
+    {INC, "INC", ABSOLUTEDD_X, 3, 7, 0}, 			// fe
+    {ISC, "ISC", ABSOLUTEDD_X, 0, 7, 0}, 			// ff
 };
 
-const int MEM_SIZE = 2048;
+#define MEM_SIZE 2048
 byte ram[MEM_SIZE]; // memory - 64k available to 6502, only 2k actually in NES
 
 bool page_crossed = false;
@@ -436,7 +436,7 @@ void cpu_reset() {
     registers.x = 0;
     registers.y = 0;
     registers.sp = STACK_START;
-    registers.pc = ((word)read_memory(RESET_VECTOR, ABSOLUTE)) | (((word)read_memory(RESET_VECTOR + 1, ABSOLUTE)) << 8);
+    registers.pc = ((word)read_memory(RESET_VECTOR, ABSOLUTEDD)) | (((word)read_memory(RESET_VECTOR + 1, ABSOLUTEDD)) << 8);
     // reset flags
     flags.c = false;
     flags.z = false;
@@ -465,13 +465,13 @@ void cpu_cycle() {
         return;
     }
     instruction_count++;
-    byte opcode = read_memory(PC, ABSOLUTE);
+    byte opcode = read_memory(PC, ABSOLUTEDD);
     page_crossed = false;
     bool jumped = false;
     instruction_info info = instructions[opcode];
     word data = 0;  // could be 8 bit or 16 bit, if 16 high byte is just 0
     for (byte i = 1; i < info.length; i++) {
-        data |= (read_memory(PC + i, ABSOLUTE) << ((i-1) * 8));  // low byte comes first
+        data |= (read_memory(PC + i, ABSOLUTEDD) << ((i-1) * 8));  // low byte comes first
     }
     //printf("%d %.4X\n", info.length, data);
     
@@ -575,7 +575,7 @@ void cpu_cycle() {
             SP--;
             B = false;
             // set PC to reset vector
-            PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTE)) | (((word)read_memory(IRQ_BRK_VECTOR + 1, ABSOLUTE)) << 8);
+            PC = ((word)read_memory(IRQ_BRK_VECTOR, ABSOLUTEDD)) | (((word)read_memory(IRQ_BRK_VECTOR + 1, ABSOLUTEDD)) << 8);
             
             jumped = true;
             break;
@@ -942,7 +942,7 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
             word fromAddress = (value * 0x100); // this is the address to start copying from
             byte tempArray[SPR_RAM_SIZE]; // not the most efficient, but no direct ppu mem access here
             for (int i = 0; i < SPR_RAM_SIZE; i++) {
-                tempArray[i] = read_memory((fromAddress + i), ABSOLUTE);
+                tempArray[i] = read_memory((fromAddress + i), ABSOLUTEDD);
             }
             dma_transfer(tempArray);
             // stall for 512 cycles while this completes
@@ -966,14 +966,14 @@ static inline void write_memory(word data, mem_mode mode, byte value) {
 static inline word address_for_mode(word data, mem_mode mode) {
     word address = 0;
     switch (mode) {
-        case ABSOLUTE:
+        case ABSOLUTEDD:
             address = data;
             break;
-        case ABSOLUTE_X:
+        case ABSOLUTEDD_X:
             address = data + X;
             page_crossed = DIFFERENT_PAGES(address, (address - X));
             break;
-        case ABSOLUTE_Y:
+        case ABSOLUTEDD_Y:
             address = data + Y;
             page_crossed = DIFFERENT_PAGES(address, (address - Y));
             break;
@@ -1004,7 +1004,7 @@ static inline word address_for_mode(word data, mem_mode mode) {
             page_crossed = DIFFERENT_PAGES(address, (address - Y));
             break;
         }
-        case RELATIVE:
+        case RELATIVEDD:
             address = (data < 0x80) ? (PC + 2 + data) : (PC + 2 + (data - 256)); // signed
             break;
         case ZEROPAGE:
@@ -1040,7 +1040,7 @@ void trigger_NMI() {
     B = false;
     I = true;
     // set PC to NMI vector
-    PC = ((word)read_memory(NMI_VECTOR, ABSOLUTE)) | (((word)read_memory(NMI_VECTOR + 1, ABSOLUTE)) << 8);
+    PC = ((word)read_memory(NMI_VECTOR, ABSOLUTEDD)) | (((word)read_memory(NMI_VECTOR + 1, ABSOLUTEDD)) << 8);
     //printf("triggered NMI\n");
 }
 
