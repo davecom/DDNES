@@ -8,7 +8,7 @@ This will never be anything impressive, and it's not code I'm proud of... it's m
 
 ## Building
 
-If for some very strange reason you wanted to build this code for this non-working emulator, it comes bundled as a project for Xcode 10 w/ SDL included in this repository. Although the code is technically probably cross-platform there are no build scripts beyond the Xcode project. It takes the file containing the game to play as the single command-line argument, which is specified in Xcode's Scheme configuration window. Right now only Mapper 0 (NROM) is implemented.
+If for some very strange reason you wanted to build this code for this not-fully-working emulator, it comes bundled as a project for Xcode 11 w/ SDL included in this repository, as well as a separate solution for Visual Studio 2019. It takes the file containing the game to play as the single command-line argument, which is specified in Xcode's Scheme configuration window, or Visual Studio's project properties debugging tab. Right now only Mapper 0 (NROM) is implemented.
 
 ## Controls
 
