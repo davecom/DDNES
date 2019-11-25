@@ -13,17 +13,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include "DDTypes.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "DDUI.h"
-=======
 // Apple OSX and iOS (Darwin)
 #if defined(__APPLE__) && defined(__MACH__)
->>>>>>> 043f363506922437640979ae94155b84901c9d4e
-=======
-// Apple OSX and iOS (Darwin)
-#if defined(__APPLE__) && defined(__MACH__)
->>>>>>> 043f363506922437640979ae94155b84901c9d4e
 #include <SDL2/SDL.h>
 // Windows, Linux
 #else
