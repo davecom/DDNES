@@ -9,6 +9,10 @@
 #include "DDAPU.h"
 
 // APU Register referenced from docs at http://wiki.nesdev.com/w/index.php/APU
+// Based on Pseudocode from http://forums.nesdev.com/viewtopic.php?f=3&t=13767&hilit=audio+psuedo
+
+byte length_table[32] = { 10, 254, 20, 2, 40, 4, 80, 6, 160, 8, 60, 10, 14, 12, 26, 14,
+12, 16, 24, 18, 48, 20, 96, 22, 192, 24, 72, 26, 16, 28, 32, 30 };
 
 bool duty_cycle[4][8] = {
     {0, 1, 0, 0, 0, 0, 0, 0},
@@ -27,10 +31,13 @@ struct pulse {
     byte sweep_period : 3;
     bool sweep_negate : 1;
     byte sweep_shift : 3;
+    bool sweep_reload : 1;
+    byte sweep_counter : 3;
     
     word timer : 11; // timer low and timer high together
     byte length : 5; // Length counter load (L)
     word timer_count : 11;
+    byte length_count : 8;
     byte duty_count : 3;
 } pulse1, pulse2;
 
@@ -92,6 +99,7 @@ void write40014005(struct pulse *p, byte value) {
     p->sweep_period = (value >> 4) & 7;
     p->sweep_negate = (value >> 3) & 1;
     p->sweep_shift = value & 7;
+    p->sweep_reload = true;
 }
 
 void write_apu_register(word address, byte value) {
@@ -112,6 +120,7 @@ void write_apu_register(word address, byte value) {
             pulse1.timer_count = pulse1.timer;
             pulse1.duty_count = 0;
             pulse1.length = (value >> 3) & 0x1F;
+            pulse1.length_count = length_table[pulse1.length];
             break;
         case 0x4004:
             write40004004(&pulse2, value);
@@ -127,6 +136,7 @@ void write_apu_register(word address, byte value) {
             pulse2.timer_count = pulse2.timer;
             pulse2.duty_count = 0;
             pulse2.length = (value >> 3) & 0x1F;
+            pulse2.length_count = length_table[pulse2.length];
             break;
         case 0x4015:
             if ((value & 1) == 0) {
@@ -136,13 +146,18 @@ void write_apu_register(word address, byte value) {
                 pulse2.length = 0;
             }
             break;
+        case 0x4017:
+            frame_counter.mode = (value & 0x80) >> 7;
+            frame_counter.irq_inhibit = (value & 0x40) >> 6;
+            frame_counter.count = 0;
+            break;
         default:
             break;
     }
 }
 
 float pulse_envelope(struct pulse *p) {
-    if (duty_cycle[p->duty][p->duty_count] && p->timer >= 8 && p->length > 0) {
+    if (duty_cycle[p->duty][p->duty_count] && p->timer >= 8 && p->timer <= 0x7FF && p->length_count > 0) {
         return p->volume;
     }
     return 0.0;
@@ -154,9 +169,10 @@ float generate_pulse() {
     float p2o = (float) pulse_envelope(&pulse2);
     float p2t = (p1o + p2o);
     //return p2t;
-    if (p2t <= 0.00001) { return 0.0; }
-    float pulse_out = 95.88 / ((float)(8128 / p2t) + 100);
-    return pulse_out;
+    //if (p2t <= 0.00001) { return 0.0; }
+    //float pulse_out = 95.88 / ((float)(8128 / p2t) + 100);
+	float pulse_out = 0.00752 * (p2t); // linear approximation * 10 is a hack
+	return pulse_out;
 }
 
 void tick_pulse(struct pulse *p) {
@@ -174,7 +190,7 @@ void tick_pulse(struct pulse *p) {
 uint64_t apu_ticks;
 
 extern int audio_buffer_length;
-extern float audio_buffer[1024];
+extern float audio_buffer[128000];
 extern int audio_buffer_place;
 
 void apu_tick() {
@@ -186,12 +202,17 @@ void apu_tick() {
         tick_pulse(&pulse2);
         
         float po = generate_pulse();//generate_pulse();
-//        if (po > 0.05) {
-//            printf("generated po of %f", po);
-//        }
-//        audio_buffer[audio_buffer_place] = po;
-//        audio_buffer_place++;
+        /*if (po > 0.05) {
+            printf("generated po of %f", po);
+        }*/
+        /*audio_buffer[audio_buffer_place] = po * 10;
+        audio_buffer_place++;*/
         addAudioToBuffer(po);
+		/*if (audio_buffer_place >= 128000) {
+			SDL_QueueAudio(1, audio_buffer, 512000);
+			audio_buffer_place = 0;
+		}*/
+		
     }
 
     
@@ -199,19 +220,84 @@ void apu_tick() {
         
         frame_counter.count++;
         
-        // length counter and sweep
-        if (frame_counter.count == 1 || frame_counter.count == 3 || frame_counter.count == 4 ) {
-            if (!pulse1.halt && pulse1.length > 0) {
-                pulse1.length--;
+        // envelope and triangle linear counter (quarter frame)
+        if (frame_counter.count == 1 || frame_counter.count == 2 || frame_counter.count == 3 || frame_counter.count == 5) {
+            if (pulse1.halt && !pulse1.constant_volume) {
+                if (pulse1.volume == 0) {
+                    pulse1.volume = 15;
+                } else {
+                    pulse1.volume--;
+                }
+                
             }
-            if (!pulse2.halt && pulse2.length > 0) {
-                pulse2.length--;
+            if (pulse2.halt && !pulse2.constant_volume) {
+                if (pulse2.volume == 0) {
+                    pulse2.volume = 15;
+                }
+                else {
+                    pulse2.volume--;
+                }
+
+            }
+        }
+
+        // half frame; sweep unit and length counter
+        if (frame_counter.count == 2 || frame_counter.count == 5) {
+            if (pulse1.sweep_reload) {
+                pulse1.sweep_counter = pulse1.sweep_period;
+                pulse1.sweep_reload = false;
+            }
+            else if (pulse1.sweep_counter > 0) {
+                pulse1.sweep_counter--;
+            }
+            else {
+                pulse1.sweep_counter = pulse1.sweep_period;
+                if (pulse1.sweep_enabled) {
+                    word sweep_change = pulse1.timer >> pulse1.sweep_shift;
+                    if (pulse1.sweep_negate) {
+                        pulse1.timer -= sweep_change + 1;
+                    }
+                    else {
+                        pulse1.timer += sweep_change;
+                    }
+                }
+            }
+
+            if (pulse2.sweep_reload) {
+                pulse2.sweep_counter = pulse2.sweep_period;
+                pulse2.sweep_reload = false;
+            }
+            else if (pulse2.sweep_counter > 0) {
+                pulse2.sweep_counter--;
+            }
+            else {
+                pulse2.sweep_counter = pulse2.sweep_period;
+                if (pulse2.sweep_enabled) {
+                    word sweep_change = pulse2.timer >> pulse2.sweep_shift;
+                    if (pulse2.sweep_negate) {
+                        pulse2.timer -= sweep_change;
+                    }
+                    else {
+                        pulse2.timer += sweep_change;
+                    }
+                }
+            }
+            
+            if (!pulse1.halt) {
+                if (pulse1.length_count > 0) {
+                    pulse1.length_count--;
+                }
+            }
+            if (!pulse2.halt) {
+                if (pulse2.length_count > 0) {
+                    pulse2.length_count--;
+                }
             }
         }
         
-        if (frame_counter.count == 3 && !frame_counter.mode) {
+        if (frame_counter.count == 4 && !frame_counter.mode) {
             frame_counter.count = 0;
-        } else if (frame_counter.count == 4) {
+        } else if (frame_counter.count == 5) {
             frame_counter.count = 0;
         }
     }
