@@ -94,19 +94,33 @@ void start_stop_nametable_debug() {
     }
 }
 
-int audio_buffer_length = 128000;
-float audio_buffer[128000];
+int audio_buffer_length = 12800;
+float audio_buffer[12800];
 int audio_buffer_place = 0;
+int last_audio_taken_from = 0;
 
 void addAudioToBuffer(float a) {
-    mtx_lock(&audio_mutex);
+    //mtx_lock(&audio_mutex);
     audio_buffer[audio_buffer_place] = a;
     audio_buffer_place++;
     if (audio_buffer_place >= audio_buffer_length) {
         audio_buffer_place = 0;
     }
-    mtx_unlock(&audio_mutex);
+    SDL_QueueAudio(1, audio_buffer + audio_buffer_place, 1);
+    //mtx_unlock(&audio_mutex);
+    //if (audio_buffer_place - last_audio_taken_from > 77) {
+    //    SDL_QueueAudio(1, audio_buffer + audio_buffer_place, 77);
+    //    last_audio_taken_from = audio_buffer_place;
+    //    //printf("queued at %d", audio_buffer_place);
+
+    //}
+    //if (last_audio_taken_from > audio_buffer_place) {
+    //    last_audio_taken_from = audio_buffer_place;
+    //}
+    
 }
+
+
 
 #ifndef max
     #define max(a,b) ((a) > (b) ? (a) : (b))
@@ -115,20 +129,20 @@ void addAudioToBuffer(float a) {
 void audio_call_back(void* userdata,
 	Uint8* stream,
 	int    len) {
-	mtx_lock(&audio_mutex);
+	//mtx_lock(&audio_mutex);
 	//if (audio_buffer_place == audio_buffer_length) {
-	//memset(stream, 0, len);
+	memset(stream, 0, len);
 	float* fstream = (float*)stream;
 	//printf("requested %d bytes\n", len);
-	if (audio_buffer_place > 0) {
-		for (int i = 0; i < (len / 4); i++) {
-			fstream[i] = audio_buffer[i % audio_buffer_place];
-		}
+	for (int i = 0; i < (len / 4); i++) {
+		fstream[i] = audio_buffer[last_audio_taken_from];
+        last_audio_taken_from++;
+        if (last_audio_taken_from >= audio_buffer_length) {
+            last_audio_taken_from = 0;
+        }
 	}
-    
-    audio_buffer_place = 0;
     //}
-    mtx_unlock(&audio_mutex);
+    //mtx_unlock(&audio_mutex);
 }
 
 void event_loop() {
@@ -281,11 +295,11 @@ void display_main_window(const char *title) {
     SDL_AudioSpec want, have;
 
     SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
-    want.freq = 44100;
+    want.freq = 22050;
     want.format = AUDIO_F32;
     want.channels = 1;
-    want.samples = 256;
-    want.callback = audio_call_back; // muse use queueaudio
+    want.samples = 1024;
+    want.callback = NULL; // muse use queueaudio
 
     if (SDL_OpenAudio(&want, &have) != 0) {
         SDL_Log("Failed to open audio: %s", SDL_GetError());

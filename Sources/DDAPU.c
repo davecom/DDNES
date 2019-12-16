@@ -43,9 +43,15 @@ struct pulse {
 
 struct {
     bool halt : 1; // Length counter halt / linear counter control (C)
-    byte linear_counter : 7; // linear counter load (R)
+    byte linear : 7; // linear counter load (R)
+    byte linear_count : 7; // linear counter load (R)
+    bool linear_reload : 1;
     word timer : 11; // timer low and timer high together
+    word timer_count : 11;
     byte length : 5; // Length counter load (L)
+    byte length_count : 5;
+    bool ultrasonic : 1;
+    byte step : 8;
 } triangle;
 
 struct {
@@ -138,6 +144,22 @@ void write_apu_register(word address, byte value) {
             pulse2.length = (value >> 3) & 0x1F;
             pulse2.length_count = length_table[pulse2.length];
             break;
+        case 0x4008: // triangle
+            triangle.halt = (value >> 7) & 1;
+            triangle.linear = (value & 0x7F);
+            triangle.linear_count = triangle.linear;
+
+            break;
+        case 0x400A:
+            triangle.timer = (triangle.timer & (0x700)) | value;
+            break;
+        case 0x400B:
+            triangle.timer = (triangle.timer & (0x0FF)) | (((word)value & 7) << 8);
+            triangle.timer_count = triangle.timer;
+            triangle.length = (value & 0xF8) >> 3;
+            triangle.length_count = length_table[triangle.length];
+            triangle.linear_reload = true;
+            break;
         case 0x4015:
             if ((value & 1) == 0) {
                 pulse1.length = 0;
@@ -163,7 +185,19 @@ float pulse_envelope(struct pulse *p) {
     return 0.0;
 }
 
-float generate_pulse() {
+float triangle_envelope() {
+    if (triangle.ultrasonic) {
+        return 7.5;
+    }
+    else if (triangle.step & 0x10) {
+        return triangle.step ^ 0x1F;
+    }
+    else {
+        return triangle.step;
+    }
+}
+
+float generate_output() {
     
     float p1o = (float) pulse_envelope(&pulse1);
     float p2o = (float) pulse_envelope(&pulse2);
@@ -172,7 +206,8 @@ float generate_pulse() {
     //if (p2t <= 0.00001) { return 0.0; }
     //float pulse_out = 95.88 / ((float)(8128 / p2t) + 100);
 	float pulse_out = 0.00752 * (p2t); // linear approximation * 10 is a hack
-	return pulse_out;
+    float tnd_out = 0.00851 * triangle_envelope();
+	return pulse_out + tnd_out;
 }
 
 void tick_pulse(struct pulse *p) {
@@ -184,6 +219,19 @@ void tick_pulse(struct pulse *p) {
         }
     } else {
         p->timer_count--;
+    }
+}
+
+void tick_triangle() {
+    triangle.ultrasonic = (triangle.timer < 2 && triangle.timer_count == 0);
+    if (!triangle.ultrasonic && triangle.length_count > 0 && triangle.linear_count > 0) {
+        if (triangle.timer_count > 0) {
+            triangle.timer_count--;
+        }
+        else {
+            triangle.timer_count = triangle.timer;
+            triangle.step = (triangle.step + 1) & 0x1F;
+        }
     }
 }
 
@@ -200,20 +248,25 @@ void apu_tick() {
         
         tick_pulse(&pulse1);
         tick_pulse(&pulse2);
-        
-        float po = generate_pulse();//generate_pulse();
+       
         /*if (po > 0.05) {
             printf("generated po of %f", po);
         }*/
         /*audio_buffer[audio_buffer_place] = po * 10;
         audio_buffer_place++;*/
-        addAudioToBuffer(po);
+        
 		/*if (audio_buffer_place >= 128000) {
 			SDL_QueueAudio(1, audio_buffer, 512000);
 			audio_buffer_place = 0;
 		}*/
 		
     }
+
+    // every clock tick triangle
+    tick_triangle();
+
+    // generate data for playback
+    addAudioToBuffer(generate_output() * 10);
 
     
     if (apu_ticks % 7457 == 0) { // new frame count
@@ -238,6 +291,16 @@ void apu_tick() {
                     pulse2.volume--;
                 }
 
+            }
+
+            if (triangle.linear_reload) {
+                triangle.linear_count = triangle.linear;
+            }
+            else if (triangle.linear_count > 0) {
+                triangle.linear_count--;
+            }
+            if (!triangle.halt) {
+                triangle.linear_reload = false;
             }
         }
 
@@ -291,6 +354,11 @@ void apu_tick() {
             if (!pulse2.halt) {
                 if (pulse2.length_count > 0) {
                     pulse2.length_count--;
+                }
+            }
+            if (!triangle.halt) {
+                if (triangle.length_count > 0) {
+                    triangle.length_count--;
                 }
             }
         }
