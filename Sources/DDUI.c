@@ -107,7 +107,7 @@ void addAudioToBuffer(float a) {
     if (audio_buffer_place >= audio_buffer_length) {
         audio_buffer_place = 0;
     }
-    int skip = 256;
+    int skip = 82;
     if (audio_ticks % skip == 0 && audio_buffer_place >= skip) {
         float sample = 0;
         for (int i = 0; i < skip; i++) {

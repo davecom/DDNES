@@ -50,9 +50,10 @@ int emulate(void *data) {
             uint32_t cur_time = SDL_GetTicks();
             uint32_t time_difference = (cur_time - time);
             if (time_difference < MILLISECONDS_PER_FRAME) {
+                //printf("Too little at %d", time_difference);
                 struct timespec how_long;
                 how_long.tv_sec = 0;
-                how_long.tv_nsec = time_difference * 1000000;
+                how_long.tv_nsec = (MILLISECONDS_PER_FRAME - time_difference - 2) * 1000000;
                 // SDL_Delay is not thread safe
                 //SDL_Delay(MILLISECONDS_PER_FRAME - time_difference);
                 thrd_sleep(&how_long, NULL);
