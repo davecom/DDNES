@@ -20,6 +20,7 @@
 
 #define NANOSECONDS_PER_CPU_CYCLE 559 // 559 for every 1 CPU cycle
 #define NANOSECONDS_PER_FRAME 16666666
+#define CPU_CYLES_PER_FRAME 29830
 #define MILLISECONDS_PER_FRAME 16
 
 
@@ -45,7 +46,7 @@ int emulate(void *data) {
         
         // pause if we are going too fast
         ticks_since_last_delay += difference;
-        if ((ticks_since_last_delay * NANOSECONDS_PER_CPU_CYCLE) > NANOSECONDS_PER_FRAME) {
+        if (ticks_since_last_delay > CPU_CYLES_PER_FRAME) {
             uint32_t cur_time = SDL_GetTicks();
             uint32_t time_difference = (cur_time - time);
             if (time_difference < MILLISECONDS_PER_FRAME) {

@@ -266,7 +266,7 @@ void apu_tick() {
     tick_triangle();
 
     // generate data for playback
-    addAudioToBuffer(generate_output() * 10);
+    addAudioToBuffer(generate_output() * 5);
 
     
     if (apu_ticks % 7457 == 0) { // new frame count

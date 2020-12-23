@@ -100,13 +100,24 @@ int audio_buffer_place = 0;
 int last_audio_taken_from = 0;
 
 void addAudioToBuffer(float a) {
+    static int audio_ticks = 0;
     //mtx_lock(&audio_mutex);
     audio_buffer[audio_buffer_place] = a;
     audio_buffer_place++;
     if (audio_buffer_place >= audio_buffer_length) {
         audio_buffer_place = 0;
     }
-    SDL_QueueAudio(1, audio_buffer + audio_buffer_place, 1);
+    int skip = 256;
+    if (audio_ticks % skip == 0 && audio_buffer_place >= skip) {
+        float sample = 0;
+        for (int i = 0; i < skip; i++) {
+            sample += audio_buffer[audio_buffer_place - skip + i];
+        }
+        sample = sample / skip;
+        SDL_QueueAudio(1, &sample, 4);
+    }
+    //SDL_QueueAudio(1, audio_buffer + audio_buffer_place, 4);
+    audio_ticks++;
     //mtx_unlock(&audio_mutex);
     //if (audio_buffer_place - last_audio_taken_from > 77) {
     //    SDL_QueueAudio(1, audio_buffer + audio_buffer_place, 77);
