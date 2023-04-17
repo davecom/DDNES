@@ -426,7 +426,7 @@ int stall = 0;
 // functions
 
 // for info on this, see https://wiki.nesdev.com/w/index.php/CPU_power_up_state
-void cpu_reset() {
+void cpu_reset(void) {
     // clear memory
     memset(ram, 0, MEM_SIZE);
     // reset stall
@@ -455,7 +455,7 @@ void debugPrint(instruction_info info, byte opcode, word data) {
     printf("%.4X  %.2X %.2X %.2X  %s $%.4X\t\t A:%.2X X:%.2X Y:%.2X P:%.2X SP:%.2X %lld\n", PC, opcode, data & 0xFF, (data & 0xFF00) >> 8, info.name, data, A, X, Y, S, SP, instruction_count);
 }
 
-void cpu_cycle() {
+void cpu_cycle(void) {
     if (stall > 0) {
         stall--;
         CPU_TICK(1);
@@ -1027,7 +1027,7 @@ static inline void setZN(byte value) {
     N = (((char)value) < 0);
 }
 
-void trigger_NMI() {
+void trigger_NMI(void) {
     // push pc to stack
     ram[(0x0100 | SP)] = (byte)(PC >> 8);
     SP--;

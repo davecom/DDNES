@@ -49,7 +49,7 @@ byte nametables[NAMETABLE_SIZE]; // nametable ram
 byte palette[PALETTE_SIZE]; // pallete ram
 
 // for info on this, see http://wiki.nesdev.com/w/index.php/PPU_power_up_state
-void ppu_reset() {
+void ppu_reset(void) {
     // clear memory
     memset(spr_ram, 0, SPR_RAM_SIZE);
     memset(nametables, 0, NAMETABLE_SIZE);
@@ -68,7 +68,7 @@ void ppu_reset() {
 byte scanline_sprite_count = 0;
 bool sprite_zero_in_secondary = false;
 
-static void draw_nametables() {
+static void draw_nametables(void) {
     for (int nametable = 0; nametable < 4; nametable++) {
         word base_nametable_address = 0x2000 + 0x400 * nametable;
         word base_attributetable_address = 0x2000 + 0x400 * nametable + 0x3C0;
@@ -204,7 +204,7 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
 
 // Based on https://wiki.nesdev.com/w/index.php/PPU_scrolling
 // and https://github.com/fogleman/nes/blob/master/nes/ppu.go
-void ppu_step() {
+void ppu_step(void) {
     static int scanline = 0;
     static int cycle = 0;
     static byte name_table_byte = 0;

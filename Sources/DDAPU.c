@@ -85,7 +85,7 @@ struct {
     byte count : 3; // 240 hz; ranges from 0-5 depending on mode
 } frame_counter;
 
-byte read_apu_status() {
+byte read_apu_status(void) {
     byte status = (0 | (dmc.irq_enable << 7) | (frame_counter.irq_inhibit << 6) |  ((dmc.sample_length > 0) << 4) | ((noise.length > 0) << 3) | ((triangle.length > 0) << 2) | ((pulse2.length > 0) << 1) | (pulse1.length > 0));
     // "Reading this register clears the frame interrupt flag
     // (but not the DMC interrupt flag)."
@@ -185,7 +185,7 @@ float pulse_envelope(struct pulse *p) {
     return 0.0;
 }
 
-float triangle_envelope() {
+float triangle_envelope(void) {
     if (triangle.ultrasonic) {
         return 7.5;
     }
@@ -197,7 +197,7 @@ float triangle_envelope() {
     }
 }
 
-float generate_output() {
+float generate_output(void) {
     
     float p1o = (float) pulse_envelope(&pulse1);
     float p2o = (float) pulse_envelope(&pulse2);
@@ -222,7 +222,7 @@ void tick_pulse(struct pulse *p) {
     }
 }
 
-void tick_triangle() {
+void tick_triangle(void) {
     triangle.ultrasonic = (triangle.timer < 2 && triangle.timer_count == 0);
     if (!triangle.ultrasonic && triangle.length_count > 0 && triangle.linear_count > 0) {
         if (triangle.timer_count > 0) {
@@ -241,7 +241,7 @@ extern int audio_buffer_length;
 extern float audio_buffer[128000];
 extern int audio_buffer_place;
 
-void apu_tick() {
+void apu_tick(void) {
     
     if (apu_ticks % 2 == 0) { // every other cpu tick
         
@@ -372,7 +372,7 @@ void apu_tick() {
     apu_ticks++;
 }
 
-void apu_reset() {
+void apu_reset(void) {
     memset(&pulse1, 0, sizeof(pulse1));
     memset(&pulse2, 0, sizeof(pulse2));
     apu_ticks = 0;

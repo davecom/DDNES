@@ -63,11 +63,11 @@ uint32_t nes_palette[64] = {0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x94
 //    return temp;
 //}
 
-void frame_ready() {
+void frame_ready(void) {
     cnd_signal(&frame_ready_condition);
 }
 
-void start_stop_nametable_debug() {
+void start_stop_nametable_debug(void) {
     if (nametable_debug) { // start
         nametable_debug_pixels = malloc(sizeof(uint32_t) * NES_WIDTH * 2 * NES_HEIGHT * 2);
         mtx_init(&nametable_debug_mutex, mtx_plain);
@@ -156,7 +156,7 @@ void audio_call_back(void* userdata,
     //mtx_unlock(&audio_mutex);
 }
 
-void event_loop() {
+void event_loop(void) {
     SDL_Event e;
     bool quit = false;
     while (!quit) {
@@ -373,7 +373,7 @@ void draw_pixel(int x, int y, byte palette_entry) {
 ////    append_pixel(pixel);
 //}
 
-void ui_cleanup() {
+void ui_cleanup(void) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_DestroyTexture(texture);

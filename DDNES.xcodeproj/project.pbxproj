@@ -3,14 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		550C12ED20F5B44800D28246 /* DDUI.c in Sources */ = {isa = PBXBuildFile; fileRef = 550C12EC20F5B44800D28246 /* DDUI.c */; };
 		5522A6FE1E6690CE001ECF64 /* DDPPU.c in Sources */ = {isa = PBXBuildFile; fileRef = 5522A6FC1E6690CE001ECF64 /* DDPPU.c */; };
-		5532327A1F9F03EF0068AC4D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553232791F9F03EF0068AC4D /* SDL2.framework */; };
-		5532327B1F9F08FB0068AC4D /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 553232791F9F03EF0068AC4D /* SDL2.framework */; };
 		556FCEFE1E4D6F0D00731450 /* DDROM.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFC1E4D6F0D00731450 /* DDROM.c */; };
 		556FCF011E4D8EAC00731450 /* DDTest.c in Sources */ = {isa = PBXBuildFile; fileRef = 556FCEFF1E4D8EAC00731450 /* DDTest.c */; };
 		556FCF031E4D944000731450 /* TestROMs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 556FCF021E4D929100731450 /* TestROMs */; };
@@ -18,6 +16,8 @@
 		558AC0811E3AC50D00B786DE /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0801E3AC50D00B786DE /* main.c */; };
 		558AC0841E3B078800B786DE /* DD6502.c in Sources */ = {isa = PBXBuildFile; fileRef = 558AC0821E3B078800B786DE /* DD6502.c */; };
 		5595FA66238B99CC00D6394A /* tinycthread.c in Sources */ = {isa = PBXBuildFile; fileRef = 5595FA64238B99CC00D6394A /* tinycthread.c */; };
+		55AF29A229EDB98B00202DF4 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 55AF29A129EDB98B00202DF4 /* SDL2.framework */; };
+		55AF29A329EDB9E300202DF4 /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 55AF29A129EDB98B00202DF4 /* SDL2.framework */; };
 		55ECC5EA21F2FC85000A0976 /* DDInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 55ECC5E921F2FC85000A0976 /* DDInput.c */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +28,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				5532327B1F9F08FB0068AC4D /* SDL2.framework in CopyFiles */,
+				55AF29A329EDB9E300202DF4 /* SDL2.framework in CopyFiles */,
 				556FCF031E4D944000731450 /* TestROMs in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -40,7 +40,6 @@
 		550C12EC20F5B44800D28246 /* DDUI.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DDUI.c; path = Sources/DDUI.c; sourceTree = "<group>"; };
 		5522A6FC1E6690CE001ECF64 /* DDPPU.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDPPU.c; path = Sources/DDPPU.c; sourceTree = "<group>"; };
 		5522A6FD1E6690CE001ECF64 /* DDPPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDPPU.h; path = Sources/DDPPU.h; sourceTree = "<group>"; };
-		553232791F9F03EF0068AC4D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = SDL/SDL2.framework; sourceTree = "<group>"; };
 		556FCEFC1E4D6F0D00731450 /* DDROM.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDROM.c; path = Sources/DDROM.c; sourceTree = "<group>"; };
 		556FCEFD1E4D6F0D00731450 /* DDROM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDROM.h; path = Sources/DDROM.h; sourceTree = "<group>"; };
 		556FCEFF1E4D8EAC00731450 /* DDTest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = DDTest.c; path = Sources/DDTest.c; sourceTree = "<group>"; };
@@ -54,6 +53,7 @@
 		558AC0831E3B078800B786DE /* DD6502.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DD6502.h; path = Sources/DD6502.h; sourceTree = "<group>"; };
 		5595FA64238B99CC00D6394A /* tinycthread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tinycthread.c; path = Sources/tinycthread.c; sourceTree = "<group>"; };
 		5595FA65238B99CC00D6394A /* tinycthread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinycthread.h; path = Sources/tinycthread.h; sourceTree = "<group>"; };
+		55AF29A129EDB98B00202DF4 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = SDL/SDL2.framework; sourceTree = "<group>"; };
 		55CD01A51E50D71200D4C7AB /* DDTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTypes.h; path = Sources/DDTypes.h; sourceTree = "<group>"; };
 		55ECC5E821F2FC85000A0976 /* DDInput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DDInput.h; path = Sources/DDInput.h; sourceTree = "<group>"; };
 		55ECC5E921F2FC85000A0976 /* DDInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = DDInput.c; path = Sources/DDInput.c; sourceTree = "<group>"; };
@@ -64,7 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5532327A1F9F03EF0068AC4D /* SDL2.framework in Frameworks */,
+				55AF29A229EDB98B00202DF4 /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +74,7 @@
 		553232781F9F03EE0068AC4D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				553232791F9F03EF0068AC4D /* SDL2.framework */,
+				55AF29A129EDB98B00202DF4 /* SDL2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -140,7 +140,8 @@
 		558AC06C1E3AC42200B786DE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1110;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "David Kopec";
 				TargetAttributes = {
 					558AC0731E3AC42200B786DE = {
@@ -213,6 +214,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -220,6 +222,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -269,6 +272,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -276,6 +280,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -298,12 +303,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 59VX8JQ7R6;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/SDL",
 				);
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -312,6 +319,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 59VX8JQ7R6;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -319,6 +327,7 @@
 				);
 				GCC_OPTIMIZATION_LEVEL = 3;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

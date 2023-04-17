@@ -121,7 +121,7 @@ bool loadROM(const char *filePath) {
     return true;
 }
 
-void unloadROM() {
+void unloadROM(void) {
     if (rom != NULL) {
         if (rom->trainer != NULL) {
             free(rom->trainer);
