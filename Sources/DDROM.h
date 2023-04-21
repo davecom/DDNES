@@ -45,6 +45,7 @@ typedef struct {
     bool hasCharacterRAM;
     byte (*readCartridge)(word address);
     void (*writeCartridge)(word address, byte value);
+    uint64_t registerData;
 } ines_rom;
 
 extern ines_rom *rom;
@@ -57,5 +58,8 @@ void writeMapper0(word address, byte value);
 
 byte readMapper1(word address);
 void writeMapper1(word address, byte value);
+
+byte readMapper2(word address);
+void writeMapper2(word address, byte value);
 
 #endif /* DDROM_h */

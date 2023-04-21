@@ -16,14 +16,16 @@
 
 ines_rom *rom = NULL;
 
-byte (*mapperReaders[2])(word address)= {
+byte (*mapperReaders[3])(word address)= {
     readMapper0,
-    readMapper1
+    readMapper1,
+    readMapper2
 };
 
-void (*mapperWriters[2])(word address, byte value)= {
+void (*mapperWriters[3])(word address, byte value)= {
     writeMapper0,
-    writeMapper1
+    writeMapper1,
+    writeMapper2
 };
 
 // returns false on failure
@@ -203,3 +205,37 @@ void writeMapper1(word address, byte value) {
         fprintf(stderr, "Tried to write to cartridge at invalid address %.4X!\n", address);
     }
 }
+
+byte readMapper2(word address) {
+    if (address < 0x2000) {
+        return rom->chrRom[address];
+    } else if (address >= 0x8000 && address < 0xC000) { // switchable PRG ROM bank
+        uint32_t prgAddress = (uint32_t)address - 0x8000;
+        byte bank = ((rom->registerData & 0xF) % rom->header.prgRomSize);
+        prgAddress += (PRG_ROM_BASE_UNIT_SIZE * (uint32_t)bank);
+        return rom->prgRom[prgAddress];
+    } else if (address >= 0xC000) { // PRG ROM bank fixed to the last bank
+        uint32_t prgAddress = ((uint32_t)address - 0xC000);
+        prgAddress += (PRG_ROM_BASE_UNIT_SIZE * (uint32_t)(rom->header.prgRomSize - 1));
+        return rom->prgRom[prgAddress];
+    } else {
+        fprintf(stderr, "Tried to read from cartridge at invalid address %.4X!\n", address);
+        return 0;
+    }
+}
+
+void writeMapper2(word address, byte value) {
+    if (address < 0x2000) {
+        if (rom->hasCharacterRAM) {
+            rom->chrRom[address] = value;
+        } else {
+            printf("Tried writing to character ram in non-character rom game at %.4X.", address);
+            return; // for mapper 0, treat writing to CHR as a no-op
+        }
+    } else if (address >= 0x8000) {
+        rom->registerData = value;
+    } else {
+        fprintf(stderr, "Tried to write to cartridge at invalid address %.4X!\n", address);
+    }
+}
+

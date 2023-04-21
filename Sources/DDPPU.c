@@ -32,11 +32,14 @@ struct {
 
 #define NAME_TABLE_ADDRESS ((((word)PPU_CONTROL1) & 0b00000011) * 0x400)
 #define ADDRESS_INCREMENT ((PPU_CONTROL1 & 0b00000100) ? 32 : 1)
-// ignored for 8x16 sprites
-#define SPRITE_PATTERN_TABLE_ADDRESS (((((word)PPU_CONTROL1) & 0b00001000) >> 3) * 0x1000)
+// true if the sprite is 8x16
+#define SPRITE_HEIGHT (PPU_CONTROL1 & 0b00100000)
+// ignore for 8x16 sprites
+#define SPRITE_PATTERN_TABLE_ADDRESS (SPRITE_HEIGHT ? 0 : (((((word)PPU_CONTROL1) & 0b00001000) >> 3) * 0x1000))
 #define BACKGROUND_PATTERN_TABLE_ADDRESS (((((word)PPU_CONTROL1) & 0b00010000) >> 4) * 0x1000)
 
 #define GENERATE_NMI (PPU_CONTROL1 & 0b10000000)
+
 #define SHOW_BACKGROUND (PPU_CONTROL2 & 0b00001000)
 #define SHOW_SPRITES (PPU_CONTROL2 & 0b00010000)
 #define LEFT_8_SPRITE_SHOW (PPU_CONTROL2 & 0b00000100)
@@ -130,7 +133,7 @@ static void figure_out_sprites(int scanline) {
         }
         byte sprite_line = scanline - y_position; // where vertically in the sprite are we
         
-        if (sprite_line >= 0 && sprite_line < 8) { // somewhere on this scanline
+        if (sprite_line >= 0 && sprite_line < (SPRITE_HEIGHT ? 16 : 8)) { // somewhere on this scanline
             // copy memory over to secondary ram for display readiness
             memcpy(secondary_spr_ram + (scanline_sprite_count * 4), spr_ram + i, 4);
             if (i == 0) {
@@ -163,11 +166,16 @@ static void draw_sprite_pixel(int x, int y, bool background_transparent) {
             bool flip_y = (secondary_spr_ram[i + 2] >> 7) & 1;
             byte sprite_line = scanline - y_position; // where vertically in the sprite are we
             if (flip_y) {
-                sprite_line = 7 - sprite_line;
+                sprite_line = (SPRITE_HEIGHT ? 15 : 7) - sprite_line;
             }
             byte index = secondary_spr_ram[i + 1];
-            word bit0sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line;
-            word bit1sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line + 8;
+            word bit0sAddress;
+            if (SPRITE_HEIGHT) {
+                bit0sAddress = ((index & 1) ? 0x1000 : 0) + ((index & 0xFE) * 16) + ((sprite_line & 7) | (((sprite_line > 7) ? 1 : 0) << 4));
+            } else {
+                bit0sAddress = SPRITE_PATTERN_TABLE_ADDRESS + (index * 16) + sprite_line;
+            }
+            word bit1sAddress = bit0sAddress + 8;
             byte bit0s = ppu_mem_read(bit0sAddress);
             byte bit1s = ppu_mem_read(bit1sAddress);
             byte bit3and2 = ((secondary_spr_ram[i + 2]) & 3) << 2;
