@@ -184,13 +184,58 @@ void writeMapper0(word address, byte value) {
 }
 
 byte readMapper1(word address) {
-    if (address >= 0x6000 && address < 0x8000) {
+    if (address < 0x2000) {
+        byte control = ((rom->registerData >> 8) & 0xFF);
+        if (control & 16) { // check CHR Rom bank mode bit if in 4kb mode
+            // 4kb mode
+            if (address < 0x1000) { // chr bank 0
+                uint32_t bank = ((rom->registerData >> 16) & 0xFF);
+                uint32_t chrAddress = (bank * 0x1000) + address;
+                return rom->chrRom[chrAddress];
+            } else { // chr bank 1
+                // get chr bank 1
+                uint32_t bank = ((rom->registerData >> 24) & 0xFF);
+                uint32_t chrAddress = (bank * 0x1000) + address;
+                return rom->chrRom[chrAddress];
+            }
+        } else { // 8 kb mode uses 4 bits of chr bank 0
+            uint32_t bank = ((rom->registerData >> 16) & 0x1E);
+            uint32_t chrAddress = (bank * 0x2000)  + address;
+            return rom->chrRom[chrAddress];
+        }
+        return rom->chrRom[address];
+    } else if (address >= 0x6000 && address < 0x8000) {
         return rom->prgRam[address - 0x6000];
     } else if (address >= 0x8000) {
-        if (rom->header.prgRomSize > 1) {
-            return rom->prgRom[address - 0x8000];
-        } else {
-            return rom->prgRom[(address - 0x8000) % PRG_ROM_BASE_UNIT_SIZE];
+        byte control = ((rom->registerData >> 8) & 0xFF);
+        byte bank_control = (control & 0xC) >> 2;
+        uint32_t bank = ((rom->registerData >> 32) & 0x0F);
+        switch (bank_control) {
+            case 2:
+            {
+                if (address < 0xC000) { // fix first bank at 0x8000
+                    return rom->prgRom[address - 0x8000];
+                } else { // second bank at 0xC000 is variable
+                    uint32_t prgAddress = (bank * 0x4000) + (address - 0xC000);
+                    return rom->prgRom[prgAddress];
+                }
+            }
+            case 3:
+            {
+                if (address < 0xC000) { // switch bank at 0x8000
+                    uint32_t prgAddress = (bank * 0x4000) + (address - 0x8000);
+                    return rom->prgRom[prgAddress];
+                } else { // fix bank at 0xC000
+                    
+                    return rom->prgRom[address - 0xC000];
+                }
+            }
+            default: // 0, 1 which are 32kb blob
+            {
+                // ignore low bit of bank
+                uint32_t prgAddress = ((bank & 0xE) * 0x8000) + (address - 0x8000);
+                return rom->prgRom[prgAddress];
+            }
         }
     } else {
         fprintf(stderr, "Tried to read from cartridge at invalid address %.4X!\n", address);
@@ -199,9 +244,56 @@ byte readMapper1(word address) {
 }
 
 void writeMapper1(word address, byte value) {
+    // rom->registerData map
+    // byte 0 (rightmost) will be original sent byte
+    // byte 1 (second right most), will be control byte
+    // byte 2 will be CHR bank 0
+    // byte 3 will be CHR bank 1
+    // byte 4 will be PRG bank
     if (address >= 0x6000 && address < 0x8000) {
         rom->prgRam[address - 0x6000] = value;
-    } else {
+    } if (address >= 0x8000) {
+        static byte shiftRegister = 0;
+        static byte shiftCount = 0;
+        if (value & 0b10000000) {
+            shiftRegister = 0;
+            shiftCount = 0;
+        } else {
+            shiftRegister <<= 1;
+            shiftRegister |= (value & 1);
+            shiftCount++;
+            if (shiftCount == 5) {
+                rom->registerData |= shiftRegister;
+                shiftCount = 0;
+                shiftRegister = 0;
+            }
+        }
+        if (address <= 0x9FFF) { // control
+            // erase old data
+            rom->registerData &= 0xFFFFFFFFFFFF00FF;
+            // put new data in
+            rom->registerData |= ((rom->registerData & 0xFF) << 8);
+            // mirroing is first two bits
+            byte mirroring = rom->registerData & 3;
+            rom->verticalMirroring = (mirroring == 2);
+        } else if (address <= 0xBFFF) { // CHR bank 0
+            // erase old data
+            rom->registerData &= 0xFFFFFFFFFF00FFFF;
+            // put new data in
+            rom->registerData |= ((rom->registerData & 0xFF) << 16);
+        } else if (address <= 0xDFFF) { // CHR bank 1
+            // erase old data
+            rom->registerData &= 0xFFFFFFFF00FFFFFF;
+            // put new data in
+            rom->registerData |= ((rom->registerData & 0xFF) << 24);
+        } else if (address <= 0xFFFF) { // PRG Bank
+            // erase old data
+            rom->registerData &= 0xFFFFFF00FFFFFFFF;
+            // put new data in
+            rom->registerData |= ((rom->registerData & 0xFF) << 32);
+        }
+    }
+    else {
         fprintf(stderr, "Tried to write to cartridge at invalid address %.4X!\n", address);
     }
 }
