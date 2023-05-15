@@ -78,7 +78,12 @@ bool loadROM(const char *filePath) {
     
     // allocate battery backed ram memory
     if (rom->batteryBackedRAM) {
-        rom->prgRam = calloc(rom->header.prgRamSize * PRG_RAM_BASE_UNIT_SIZE, 1);
+        // default size is 8K if size not specified
+        if (rom->header.prgRamSize == 0) {
+            rom->prgRam = calloc(PRG_RAM_BASE_UNIT_SIZE, 1);
+        } else {
+            rom->prgRam = calloc(rom->header.prgRamSize * PRG_RAM_BASE_UNIT_SIZE, 1);
+        }
     } else {
         rom->prgRam = NULL;
     }
@@ -91,6 +96,7 @@ bool loadROM(const char *filePath) {
         fclose(file); // clean up
         return false;
     }
+    //printf("Read %zu bytes from prg rom", amountRead);
     
     // allocate chr rom data and copy from file
     if(rom->header.chrRomSize > 0) {
@@ -184,7 +190,12 @@ void writeMapper0(word address, byte value) {
 }
 
 byte readMapper1(word address) {
-    if (address < 0x2000) {
+    static bool neverRead = true;
+    if (neverRead) { // initialize first time to default value
+        rom->registerData = ((uint32_t)(0xC)) << 8;
+        neverRead = false;
+    }
+    if (address < 0x2000) { // CHR Rom
         byte control = ((rom->registerData >> 8) & 0xFF);
         if (control & 16) { // check CHR Rom bank mode bit if in 4kb mode
             // 4kb mode
@@ -195,18 +206,18 @@ byte readMapper1(word address) {
             } else { // chr bank 1
                 // get chr bank 1
                 uint32_t bank = ((rom->registerData >> 24) & 0xFF);
-                uint32_t chrAddress = (bank * 0x1000) + address;
+                uint32_t chrAddress = (bank * 0x1000) + (address - 0x1000);
                 return rom->chrRom[chrAddress];
             }
         } else { // 8 kb mode uses 4 bits of chr bank 0
-            uint32_t bank = ((rom->registerData >> 16) & 0x1E);
-            uint32_t chrAddress = (bank * 0x2000)  + address;
+            uint32_t bank = (((rom->registerData >> 16) & 0x1E) >> 1);
+            uint32_t chrAddress = (bank * 0x2000) + address;
             return rom->chrRom[chrAddress];
         }
         return rom->chrRom[address];
     } else if (address >= 0x6000 && address < 0x8000) {
         return rom->prgRam[address - 0x6000];
-    } else if (address >= 0x8000) {
+    } else if (address >= 0x8000) { // PRG ROM
         byte control = ((rom->registerData >> 8) & 0xFF);
         byte bank_control = (control & 0xC) >> 2;
         uint32_t bank = ((rom->registerData >> 32) & 0x0F);
@@ -226,14 +237,15 @@ byte readMapper1(word address) {
                     uint32_t prgAddress = (bank * 0x4000) + (address - 0x8000);
                     return rom->prgRom[prgAddress];
                 } else { // fix bank at 0xC000
-                    
-                    return rom->prgRom[address - 0xC000];
+                    uint32_t prgAddress = ((uint32_t)address - 0xC000);
+                    prgAddress += (PRG_ROM_BASE_UNIT_SIZE * (uint32_t)(rom->header.prgRomSize - 1));
+                    return rom->prgRom[prgAddress];
                 }
             }
             default: // 0, 1 which are 32kb blob
             {
                 // ignore low bit of bank
-                uint32_t prgAddress = ((bank & 0xE) * 0x8000) + (address - 0x8000);
+                uint32_t prgAddress = ((bank >> 1) * 0x4000) + (address - 0x8000);
                 return rom->prgRom[prgAddress];
             }
         }
@@ -250,22 +262,34 @@ void writeMapper1(word address, byte value) {
     // byte 2 will be CHR bank 0
     // byte 3 will be CHR bank 1
     // byte 4 will be PRG bank
-    if (address >= 0x6000 && address < 0x8000) {
+    if (address < 0x2000) {
+        if (rom->hasCharacterRAM) {
+            rom->chrRom[address] = value;
+        } else {
+            printf("Tried writing to character ram in non-character rom game at %.4X.", address);
+            return; // for mapper 0, treat writing to CHR as a no-op
+        }
+    } else if (address >= 0x6000 && address < 0x8000) {
         rom->prgRam[address - 0x6000] = value;
-    } if (address >= 0x8000) {
+    } else if (address >= 0x8000) {
         static byte shiftRegister = 0;
         static byte shiftCount = 0;
         if (value & 0b10000000) {
             shiftRegister = 0;
             shiftCount = 0;
+            rom->registerData &= 0xFFFFFFFFFFFF00FF;
+            rom->registerData |= (0xC << 8);
+            return;
         } else {
-            shiftRegister <<= 1;
-            shiftRegister |= (value & 1);
+            shiftRegister |= ((value & 1) << shiftCount);
             shiftCount++;
             if (shiftCount == 5) {
+                rom->registerData = (rom->registerData & 0xFFFFFFFFFFFFFF00);
                 rom->registerData |= shiftRegister;
                 shiftCount = 0;
                 shiftRegister = 0;
+            } else {
+                return; // don't write anything if wrong time
             }
         }
         if (address <= 0x9FFF) { // control
